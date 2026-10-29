@@ -1,0 +1,994 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Univex Trade Docs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Rubik:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* base reset */
+body{margin:0;font:14px/1.45 system-ui,sans-serif}img{max-width:100%}[hidden]{display:none!important}
+
+/* Layout: fixed ledger sidebar + working pane; documents render as white A4 paper in both themes */
+:root{
+  --bg:#f5f7fc; --panel:#ffffff; --sunk:#eef2fa; --line:#d9e1f0; --fg:#0d1830; --muted:#5a6886;
+  --ink:#f26b1d; --ink-fg:#ffffff; --accent:#f26b1d; --accent-soft:#fff0e6; --blue:#0f1f3d; --blue-soft:#e4e9f2;
+  --ok:#1d7a46; --ok-soft:#dcf2e4; --warn:#b85c00; --warn-soft:#fdeedb; --bad:#b4232c; --bad-soft:#f9dcdd;
+  --side:#0a1630; --side-fg:#c3d3f2; --side-hi:#ffffff;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif; --body:"IBM Plex Sans",system-ui,sans-serif; --mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0a1122; --panel:#111c33; --sunk:#18253f; --line:#26365a; --fg:#e8eefb; --muted:#93a3c4;
+  --ink:#ff8a3d; --ink-fg:#1a0b00; --accent:#ff8a3d; --accent-soft:#3a1f0c; --blue:#7fa8f0; --blue-soft:#16264a;
+  --ok:#5fd18f; --ok-soft:#133825; --warn:#f0b04d; --warn-soft:#3a2a10; --bad:#ff7a80; --bad-soft:#3d1518;
+  --side:#050c1c; --side-fg:#9fb3da; --side-hi:#ffffff; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0a1122; --panel:#111c33; --sunk:#18253f; --line:#26365a; --fg:#e8eefb; --muted:#93a3c4;
+  --ink:#ff8a3d; --ink-fg:#1a0b00; --accent:#ff8a3d; --accent-soft:#3a1f0c; --blue:#7fa8f0; --blue-soft:#16264a;
+  --ok:#5fd18f; --ok-soft:#133825; --warn:#f0b04d; --warn-soft:#3a2a10; --bad:#ff7a80; --bad-soft:#3d1518;
+  --side:#050c1c; --side-fg:#9fb3da; --side-hi:#ffffff; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:14px;line-height:1.45}
+button,input,select,textarea{font:inherit;color:inherit}
+.app{display:grid;grid-template-columns:232px minmax(0,1fr);min-height:100%}
+aside{background:linear-gradient(180deg,var(--side),#132a52);color:var(--side-fg);padding:22px 14px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100vh}
+.brand{display:flex;gap:10px;align-items:center;padding:0 6px}
+.mark{width:36px;height:36px;border-radius:8px;background:linear-gradient(135deg,#f26b1d,#ff9a4d);color:#ffffff;box-shadow:0 2px 10px #f26b1d55;display:grid;place-items:center;font-family:var(--display);font-weight:800;font-size:15px;letter-spacing:.02em;overflow:hidden;flex:none}
+.mark img{width:100%;height:100%;object-fit:contain;background:#fff}
+.brand b{font-family:var(--display);font-weight:800;color:var(--side-hi);font-size:15px;display:block;line-height:1.1}
+.brand span{font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+nav{display:flex;flex-direction:column;gap:2px}
+nav button{all:unset;cursor:pointer;padding:9px 10px;border-radius:6px;display:flex;justify-content:space-between;gap:8px;font-weight:500}
+nav button:hover{background:#ffffff12;color:var(--side-hi)}
+nav button.on{background:#ffffff17;color:var(--side-hi);box-shadow:inset 3px 0 0 var(--accent)}
+nav button:focus-visible{outline:2px solid var(--accent)}
+nav .n{font-family:var(--mono);font-size:12px;opacity:.75}
+.side-foot{margin-top:auto;font-size:12px;padding:0 6px;display:flex;flex-direction:column;gap:4px}
+.dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:6px;background:var(--warn)}
+.dot.live{background:#3fd08a}
+main{min-width:0;padding-block:26px 60px;padding-left:max(28px,env(safe-area-inset-left,0px));padding-right:max(28px,env(safe-area-inset-right,0px))}
+.top{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+h1{font-family:var(--display);font-weight:800;font-size:26px;color:var(--blue);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h2{font-family:var(--display);font-weight:700;font-size:16px;margin:0;color:var(--blue)}
+.sub{color:var(--muted);margin:4px 0 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--panel);padding:8px 14px;border-radius:6px;cursor:pointer;font-weight:500;white-space:nowrap}
+.btn:hover{border-color:var(--muted)}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.btn.pri{background:var(--ink);color:var(--ink-fg);border-color:var(--ink);box-shadow:0 2px 8px #f26b1d40}
+.btn.pri:hover{filter:brightness(1.1)}
+.btn.danger{color:var(--bad)}
+.btn.sm{padding:5px 10px;font-size:13px}
+.btn[disabled]{opacity:.45;cursor:not-allowed}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 2px #0a16300d}
+.pad{padding:18px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:18px}
+.kpi{padding:14px 16px;border-top:3px solid var(--accent)}
+.kpi:nth-child(even){border-top-color:var(--blue)}
+.kpi label{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);display:block}
+.kpi b{font-family:var(--display);font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;display:block;margin-top:4px}
+.kpi small{color:var(--muted)}
+.tbl-wrap{overflow-x:auto}
+table.t{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+table.t th{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);text-align:left;font-weight:600;padding:10px 12px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--panel)}
+table.t td{padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+table.t tr.click{cursor:pointer}
+table.t tr.click:hover td{background:var(--sunk)}
+table.t .num{text-align:right}
+.mono{font-family:var(--mono);font-size:13px}
+.chip{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--sunk);color:var(--muted)}
+.chip.draft{background:var(--sunk);color:var(--muted)}
+.chip.issued{background:var(--blue-soft);color:var(--blue)}
+.chip.released{background:var(--ok-soft);color:var(--ok)}
+.chip.hold{background:var(--warn-soft);color:var(--warn)}
+.chip.cancelled{background:var(--bad-soft);color:var(--bad)}
+.chip.sample{background:transparent;border:1px dashed var(--muted);color:var(--muted)}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(2,minmax(0,1fr))}.g3{grid-template-columns:repeat(3,minmax(0,1fr))}.g4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.f{display:flex;flex-direction:column;gap:5px;min-width:0}
+.f label{font-size:12px;font-weight:600;color:var(--muted)}
+.f input,.f select,.f textarea{border:1px solid var(--line);background:var(--bg);border-radius:6px;padding:8px 10px;width:100%;min-width:0}
+.f textarea{min-height:64px;resize:vertical}
+.f .hint{font-size:12px;color:var(--muted)}
+.f.err input{border-color:var(--bad)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:16px;overflow-x:auto}
+.tabs button{all:unset;cursor:pointer;padding:10px 14px;font-weight:600;color:var(--muted);border-bottom:2px solid transparent;white-space:nowrap}
+.tabs button.on{color:var(--fg);border-bottom-color:var(--accent)}
+.tabs button:focus-visible{outline:2px solid var(--accent)}
+.tabs .cnt{font-family:var(--mono);font-size:11px;margin-left:6px;padding:1px 6px;border-radius:999px;background:var(--warn-soft);color:var(--warn)}
+.tabs .cnt.b{background:var(--bad-soft);color:var(--bad)}
+.lines input{border:1px solid transparent;background:transparent;padding:6px 7px;border-radius:4px;width:100%;min-width:0}
+.lines input:hover{border-color:var(--line)}
+.lines input:focus{border-color:var(--accent);background:var(--bg)}
+.lines td{padding:4px 4px;border-bottom:1px solid var(--line)}
+.lines th{padding:8px 6px}
+.lines tfoot td{font-weight:600;padding:10px 8px}
+.hold{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border-radius:8px;background:var(--warn-soft);color:var(--fg);border:1px solid var(--warn);margin-bottom:16px}
+.hold b{color:var(--warn)}
+.checks{display:flex;flex-direction:column;gap:8px}
+.chk{display:flex;gap:10px;padding:10px 12px;border-radius:6px;background:var(--sunk);align-items:flex-start}
+.chk i{font-style:normal;font-weight:700;width:18px;flex:none;text-align:center}
+.chk.error i{color:var(--bad)}.chk.warn i{color:var(--warn)}.chk.ok i{color:var(--ok)}
+.docs{display:grid;grid-template-columns:240px minmax(0,1fr);gap:16px;align-items:start}
+.doclist{display:flex;flex-direction:column;gap:6px}
+.doclist button{all:unset;cursor:pointer;padding:11px 13px;border-radius:6px;border:1px solid var(--line);background:var(--panel)}
+.doclist button.on{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+.doclist button small{display:block;color:var(--muted);font-size:12px}
+.doclist button:focus-visible{outline:2px solid var(--accent)}
+.stage{background:var(--sunk);border-radius:8px;padding:18px;overflow:auto;max-height:80vh}
+.stage .scaler{transform-origin:top left}
+.toast{position:fixed;right:max(20px,env(safe-area-inset-right,0px));bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--fg);color:var(--bg);padding:11px 16px;border-radius:6px;font-weight:500;z-index:50;max-width:min(420px,calc(100vw - 40px))}
+.empty{padding:36px;text-align:center;color:var(--muted)}
+.empty b{display:block;color:var(--fg);font-family:var(--display);font-size:17px;margin-bottom:6px}
+.search{border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:8px 12px;min-width:0;width:260px;max-width:100%}
+.log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.log li{display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.log time{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.modal-bg{position:fixed;inset:0;background:#0009;display:grid;place-items:center;z-index:40;padding:16px}
+.modal{background:var(--panel);border-radius:10px;padding:20px;width:min(640px,100%);max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:14px}
+.offscreen{position:absolute;left:-20000px;top:0}
+.unsaved{color:var(--warn);font-weight:600;font-size:13px}
+@media (max-width:900px){
+  .app{grid-template-columns:minmax(0,1fr)}
+  aside{position:static;height:auto;padding:14px max(16px,env(safe-area-inset-left,0px)) 10px max(16px,env(safe-area-inset-right,0px));gap:12px}
+  nav{flex-direction:row;overflow-x:auto}
+  nav button{white-space:nowrap}
+  .side-foot{display:flex;flex-direction:row;flex-wrap:wrap;align-items:center;gap:10px}
+  main{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+  .kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3,.g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .docs{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:520px){.g2,.g3,.g4{grid-template-columns:minmax(0,1fr)}.log li{grid-template-columns:minmax(0,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* ---------- Printed documents: Figma "Invoice Template for Freelancers" (teal #073B4C, Rubik), scaled to A4 ---------- */
+.paper{--brand:#073b4c;width:794px;min-height:1123px;background:#f3f5f6;color:#333333;font:9px/1.4 "Rubik",Arial,Helvetica,sans-serif;position:relative;display:flex;flex-direction:column;box-shadow:0 2px 14px #0003;overflow:hidden}
+.paper.land{width:1123px;min-height:794px}
+.paper *{color:inherit}
+.t-head{background:var(--brand);color:#ffffff;padding:17px 51px;font-size:28px;line-height:1.4;letter-spacing:.56px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.t-head b{font-weight:600}
+.t-head span{font-weight:400}
+.t-band{background:rgba(7,59,76,.03);padding:30px 51px 40px;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.t-card{background:#ffffff;border-radius:7px;box-shadow:0 6px 12px rgba(73,100,98,.1);padding:20px 20px 14px;min-height:118px}
+.t-card h4{margin:0 0 9px;font-size:12.6px;font-weight:600;color:var(--brand);letter-spacing:.25px;line-height:1.4}
+.t-card p{margin:0 0 7px;font-size:9px;color:#333333;letter-spacing:.18px;line-height:1.4;word-break:break-word}
+.t-card p:last-child{margin-bottom:0}
+.t-card em{font-style:normal;color:#646464}
+.t-body{background:#ffffff;border-radius:34px 34px 0 0;margin-top:-14px;padding:27px 51px 26px;flex:1;display:flex;flex-direction:column}
+.t-row{display:flex;justify-content:space-between;align-items:flex-start;gap:20px}
+.t-h2{font-size:20px;font-weight:700;color:#646464;letter-spacing:.4px;margin:0 0 6px;line-height:1.4}
+.t-h3{font-size:13px;font-weight:700;color:#646464;letter-spacing:.26px;margin:10px 0 4px}
+.t-p{font-size:11px;line-height:1.76;color:#646464;margin:0 0 4px}
+.t-tbl{width:100%;border-collapse:separate;border-spacing:0 5px;margin-top:8px}
+.t-tbl th{font-size:10.5px;font-weight:700;color:#646464;text-align:left;padding:2px 9px 6px;letter-spacing:.2px;line-height:1.5;white-space:nowrap}
+.t-tbl tr.rule td{background:transparent;padding:0 0 3px}
+.t-tbl tr.rule div{height:2.4px;border-radius:4px;background:var(--brand)}
+.t-tbl td{background:rgba(7,59,76,.05);padding:8px 9px;font-size:9.5px;color:#646464;letter-spacing:.15px;line-height:1.5;vertical-align:top}
+.t-tbl td:first-child{border-radius:4px 0 0 4px}
+.t-tbl td:last-child{border-radius:0 4px 4px 0}
+.t-tbl .r{text-align:right;white-space:nowrap}
+.t-tbl td b{font-weight:500;color:#4a4a4a}
+.t-sum{display:flex;justify-content:space-between;align-items:center;gap:16px;border-radius:4px;padding:9px 19px;font-size:13.6px;letter-spacing:.27px;line-height:1.5;margin-top:9px}
+.t-sum span:last-child{text-align:right}
+.t-sum.total{background:rgba(7,59,76,.1);color:var(--brand);font-weight:700;padding:9px 15px}
+.t-sum.total span:first-child{text-transform:uppercase}
+.t-sum.adv{background:rgba(7,59,76,.08);color:var(--brand);font-weight:500;font-size:11.5px}
+.t-sum.disc{background:rgba(24,109,60,.08);color:#186d3c;font-weight:500;font-size:11.5px}
+.t-sum.hold{background:#fdeedb;color:#9a5200;font-weight:600;font-size:11.5px}
+.t-opts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.t-opt{background:rgba(7,59,76,.05);border-radius:4px;padding:5px 9px;font-size:9.5px;color:#646464;display:flex;align-items:center;gap:7px}
+.t-opt.on{background:rgba(7,59,76,.1);color:var(--brand);font-weight:600}
+.t-tick{width:10px;height:10px;border-radius:2px;border:1.2px solid var(--brand);flex:none;display:grid;place-items:center;font-size:8px;line-height:1;color:#ffffff}
+.t-opt.on .t-tick{background:var(--brand)}
+.t-small{font-size:8.5px;color:#7a7a7a;line-height:1.5;margin:8px 0 0}
+.t-sign{display:flex;justify-content:space-between;gap:30px;margin-top:auto;padding-top:40px}
+.t-sign>div{flex:1;max-width:230px;border-top:1px solid #a9b6bb;padding-top:6px;font-size:9px;color:#646464;font-weight:500;letter-spacing:.18px;position:relative;text-align:center}
+.t-sign>div.blank{border-top:0}
+.t-sign img{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);max-height:70px;max-width:150px;opacity:.92}
+.t-footwrap{background:#ffffff}
+.t-foot{background:#f7fafa;border-radius:34px 34px 0 0;padding:30px 50px 28px;display:flex;justify-content:space-between;align-items:flex-start;gap:24px}
+.t-logo{width:70px;height:70px;border-radius:50%;background:#0f7166;display:grid;place-items:center;overflow:hidden;flex:none;color:#ffffff;font:700 22px "Rubik",Arial,sans-serif;letter-spacing:.5px}
+.t-logo.img{background:#ffffff;box-shadow:0 0 0 1px rgba(7,59,76,.08)}
+.t-logo img{max-width:52px;max-height:52px}
+.t-fcol{font-size:10.7px;line-height:1.56;color:#646464;letter-spacing:.21px;padding:3px;max-width:250px;word-break:break-word}
+.t-fcol b{font-weight:600;display:block}
+.wm{position:absolute;inset:0;display:grid;place-items:center;pointer-events:none;overflow:hidden;z-index:3}
+.wm span{transform:rotate(-30deg);font:700 62px "Rubik",Arial,sans-serif;color:#c0262d;opacity:.13;white-space:nowrap;letter-spacing:.04em}
+.wm.draft span{color:#073b4c}
+.qr{width:72px;height:72px;flex:none}
+.qr img,.qr canvas{width:72px!important;height:72px!important}
+
+/* login gate */
+#gate{position:fixed;inset:0;z-index:70;display:grid;place-items:center;padding:24px max(16px,env(safe-area-inset-left,0px));background:radial-gradient(900px 500px at 90% 0%,#f26b1d33,transparent 60%),linear-gradient(160deg,#0a1630,#132a52);overflow:auto}
+.g-card{background:var(--panel);color:var(--fg);width:min(420px,100%);border-radius:14px;padding:30px 28px;box-shadow:0 24px 60px #0007;display:flex;flex-direction:column;gap:14px}
+.g-card h1{font-size:24px;margin:4px 0 0}
+.g-sub{color:var(--muted);margin:0;line-height:1.5}
+.g-sub code{font-family:var(--mono);font-size:13px;background:var(--sunk);padding:1px 6px;border-radius:4px}
+.g-brand{display:flex;gap:12px;align-items:center}
+.g-brand .mark{width:42px;height:42px;font-size:16px}
+.g-brand b{display:block;font-family:var(--display);font-size:17px}
+.g-brand span{font-size:12px;color:var(--muted);letter-spacing:.06em;text-transform:uppercase}
+.g-form{display:flex;flex-direction:column;gap:12px}
+.g-form .btn{padding:11px 14px;font-size:15px}
+.g-err{color:var(--bad);margin:0;min-height:1.2em;font-size:13px}
+.g-err:empty{min-height:0}
+.g-link{all:unset;cursor:pointer;color:var(--accent);font-weight:600;align-self:flex-start}
+.g-link:focus-visible{outline:2px solid var(--accent)}
+.acct{display:flex;flex-direction:column;gap:6px;padding:10px;border-radius:8px;background:#ffffff0d}
+.acct b{color:var(--side-hi);font-size:13px;word-break:break-all}
+.acct .row{justify-content:space-between}
+.acct button{all:unset;cursor:pointer;font-size:12px;color:var(--side-hi);text-decoration:underline}
+.rolechip{font-size:11px;padding:1px 8px;border-radius:999px;background:#f26b1d33;color:#ffb27f;font-weight:600}
+/* role-based controls */
+body.ro [data-act]:not([data-act=pdf]):not([data-act=exportCsv]):not([data-act=signOut]):not([data-act=backup]){display:none}
+body.ro .ro-hide{display:none}
+body:not(.admin) .admin-only{display:none}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside>
+    <div class="brand"><div class="mark" id="sideMark">UV</div><div><b id="sideName">Univex Trading</b><span>Trade documents</span></div></div>
+    <nav id="nav"></nav>
+    <div class="side-foot"><span id="modeTag"><span class="dot"></span>Connecting…</span><div class="acct" id="acct"></div></div>
+  </aside>
+  <main id="main"></main>
+</div>
+<div id="off" class="offscreen" aria-hidden="true"></div>
+<div id="modalRoot"></div>
+<div id="gate"><div class="g-card"><p class="g-sub">Loading…</p></div></div>
+
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.97.0"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+"use strict";
+/* ================= State & storage ================= */
+const S={orders:{},products:{},parties:{},boes:{},config:{}};
+const UI={view:'dash',orderId:null,tab:'details',doc:'ci',q:'',status:'all',edit:null,dirty:false};
+const $=s=>document.querySelector(s);
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));
+const clone=o=>JSON.parse(JSON.stringify(o));
+const num=v=>{const n=parseFloat(String(v).replace(/,/g,''));return isFinite(n)?n:0};
+const fmt=(n,d=2)=>num(n).toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d});
+const fmtQ=n=>num(n).toLocaleString('en-US',{maximumFractionDigits:3});
+const today=()=>new Date().toISOString().slice(0,10);
+const dmy=iso=>{if(!iso)return '';const [y,m,d]=iso.split('-');return `${d}/${m}/${y}`};
+const nowIso=()=>new Date().toISOString();
+const settings=()=>Object.assign({companyName:'UNIVEX TRADING',address1:'Jebel Ali Free Zone',address2:'Dubai, United Arab Emirates',phone:'',email:'',website:'',trn:'',licenceNo:'',importerCode:'',agentCode:'',repCard:'',prefix:'UVX',startSeq:1001,exitPoint:'JEBEL ALI',destination:'JEBEL ALI LOCAL',signatory:'',brand:'#073b4c',bankName:'',accName:'',accNo:'',iban:'',swift:'',footer:'',currency:'AED'},S.config.settings||{});
+
+/* ================= Supabase: database + login ================= */
+const CFG=window.UNIVEX_CONFIG||{};
+const COLLS=['orders','products','parties','boes','config'];
+let SB=null,SESSION=null,ME=null,ROLE=null,MYPROFILE=null,TEAM=[],PROFILES={},CHANNEL=null,READY=false,LIVE=false,STARTING=false;
+const RECOVERY=/type=(recovery|invite)/.test(location.hash);
+const configured=()=>!!(CFG.SUPABASE_URL&&CFG.SUPABASE_KEY&&!/YOUR-/i.test(CFG.SUPABASE_URL+CFG.SUPABASE_KEY));
+const canWrite=coll=>ROLE==='admin'||(ROLE==='staff'&&coll!=='config');
+const ROLE_LABEL={admin:'Admin',staff:'Staff',viewer:'Viewer'};
+
+async function put(coll,id,data){
+  if(!canWrite(coll)){toast(coll==='config'?'Only an admin can change company settings.':'Your account is view-only. Ask an admin for staff access.');throw new Error('read-only')}
+  const had=Object.prototype.hasOwnProperty.call(S[coll],id),prev=S[coll][id];
+  S[coll][id]=clone(data);render();
+  const {error}=await SB.from('app_docs').upsert({collection:coll,id,data});
+  if(error){if(had)S[coll][id]=prev;else delete S[coll][id];render();toast(dbMsg(error));throw error}
+}
+async function del(coll,id){
+  if(!canWrite(coll)){toast('Your account can’t delete this. Ask an admin.');throw new Error('read-only')}
+  const prev=S[coll][id];delete S[coll][id];render();
+  const {error}=await SB.from('app_docs').delete().match({collection:coll,id});
+  if(error){S[coll][id]=prev;render();toast(dbMsg(error));throw error}
+}
+function dbMsg(e){
+  const m=(e&&e.message)||'';
+  if((e&&e.code==='42501')||/row-level security|permission denied/i.test(m))return 'Your account doesn’t have permission to change this. Ask an admin.';
+  if(/jwt|session|token/i.test(m))return 'Your session expired. Sign in again.';
+  if(/failed to fetch|network|load failed/i.test(m))return 'Couldn’t reach the database. Check your internet connection and try again.';
+  if(/payload|too large/i.test(m))return 'That record is too large. Try a smaller logo or stamp image.';
+  return 'Couldn’t save: '+m;
+}
+
+/* ---------- Boot & session ---------- */
+async function boot(){
+  if(!configured()){gate('setup');return}
+  if(!window.supabase||!window.supabase.createClient){gate('nolib');return}
+  SB=window.supabase.createClient(CFG.SUPABASE_URL,CFG.SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  let recovering=RECOVERY;
+  SB.auth.onAuthStateChange((event,session)=>{
+    if(event==='PASSWORD_RECOVERY'||(recovering&&session&&event!=='SIGNED_OUT')){SESSION=session;gate('newpass');return}
+    if(event==='SIGNED_OUT'||!session){teardown();gate('login');return}
+    const changed=!SESSION||SESSION.user.id!==session.user.id;
+    SESSION=session;
+    if(changed||!READY)setTimeout(startApp,0);
+  });
+  window.__doneRecovery=()=>{recovering=false;history.replaceState(null,'',location.pathname);startApp()};
+}
+async function startApp(){
+  if(STARTING||!SESSION)return;STARTING=true;
+  try{
+    ME=SESSION.user.id;
+    gate('loading');
+    const {data:prof,error}=await SB.from('profiles').select('id,email,full_name,role,created_at').eq('id',ME).maybeSingle();
+    if(error){gate('dberror',error.message);return}
+    if(!prof){gate('noprofile');return}
+    MYPROFILE=prof;ROLE=prof.role;
+    await loadProfiles();
+    const ok=await loadAll();if(!ok)return;
+    subscribe();
+    READY=true;gate(null);applyRole();render();
+  }finally{STARTING=false}
+}
+async function loadProfiles(){
+  const {data}=await SB.from('profiles').select('id,email,full_name,role,created_at').order('created_at');
+  TEAM=data||[];PROFILES={};TEAM.forEach(p=>PROFILES[p.id]=p.full_name||p.email||'A teammate');
+  const me=TEAM.find(p=>p.id===ME);if(me){MYPROFILE=me;ROLE=me.role}
+}
+async function loadAll(){
+  COLLS.forEach(c=>S[c]={});
+  const page=1000;let from=0;
+  for(;;){
+    const {data,error}=await SB.from('app_docs').select('collection,id,data').order('collection').order('id').range(from,from+page-1);
+    if(error){gate('dberror',error.message);return false}
+    data.forEach(r=>{if(S[r.collection])S[r.collection][r.id]=r.data});
+    if(data.length<page)break;from+=page;
+  }
+  return true;
+}
+function subscribe(){
+  if(CHANNEL)SB.removeChannel(CHANNEL);
+  CHANNEL=SB.channel('univex-live')
+    .on('postgres_changes',{event:'*',schema:'public',table:'app_docs'},p=>{
+      if(p.eventType==='DELETE'){const o=p.old||{};if(S[o.collection])delete S[o.collection][o.id]}
+      else{const n=p.new||{};if(S[n.collection])S[n.collection][n.id]=n.data}
+      render();
+    })
+    .on('postgres_changes',{event:'*',schema:'public',table:'profiles'},async()=>{await loadProfiles();applyRole();render()})
+    .subscribe(status=>{LIVE=status==='SUBSCRIBED';setMode()});
+}
+function teardown(){
+  if(CHANNEL&&SB)SB.removeChannel(CHANNEL);CHANNEL=null;
+  COLLS.forEach(c=>S[c]={});SESSION=null;ME=null;ROLE=null;MYPROFILE=null;TEAM=[];PROFILES={};READY=false;LIVE=false;
+  UI.view='dash';UI.edit=null;UI.dirty=false;
+}
+function applyRole(){
+  document.body.classList.toggle('ro',ROLE==='viewer');
+  document.body.classList.toggle('admin',ROLE==='admin');
+  if(UI.view==='users'&&ROLE!=='admin')UI.view='dash';
+}
+function setMode(){
+  const t=$('#modeTag');if(!t)return;
+  t.innerHTML=LIVE?'<span class="dot live"></span>Live · Supabase':'<span class="dot"></span>Connecting…';
+}
+function names(){}
+const who=id=>id?(PROFILES[id]||'A teammate'):'System';
+
+/* ---------- Login screens ---------- */
+function gate(mode,detail){
+  const g=$('#gate');
+  if(!mode){g.hidden=true;g.innerHTML='';return}
+  g.hidden=false;
+  const s=settings(),brand=`<div class="g-brand"><div class="mark">${esc(initials(s.companyName))}</div><div><b>Univex Trade Docs</b><span>Jebel Ali Free Zone</span></div></div>`;
+  const V={
+    loading:`${brand}<p class="g-sub">Loading your workspace…</p>`,
+    login:`${brand}<h1>Sign in</h1><p class="g-sub">Use the email and password your admin gave you.</p>
+      <form id="gLogin" class="g-form"><div class="f"><label for="gEmail">Email</label><input id="gEmail" type="email" autocomplete="username" required></div>
+      <div class="f"><label for="gPass">Password</label><input id="gPass" type="password" autocomplete="current-password" required></div>
+      <p class="g-err" id="gErr" role="alert"></p><button class="btn pri" id="gBtn">Sign in</button></form>
+      <button class="g-link" data-gate="forgot">Forgot password?</button>`,
+    forgot:`${brand}<h1>Reset password</h1><p class="g-sub">Enter your email and we’ll send you a link to set a new password.</p>
+      <form id="gForgot" class="g-form"><div class="f"><label for="gEmail">Email</label><input id="gEmail" type="email" autocomplete="username" required></div>
+      <p class="g-err" id="gErr" role="alert"></p><button class="btn pri" id="gBtn">Send reset link</button></form>
+      <button class="g-link" data-gate="login">Back to sign in</button>`,
+    sent:`${brand}<h1>Check your email</h1><p class="g-sub">If that address has an account, a reset link is on its way. Open it on this device to set a new password.</p><button class="g-link" data-gate="login">Back to sign in</button>`,
+    newpass:`${brand}<h1>Set a new password</h1><p class="g-sub">Choose a password with at least 8 characters.</p>
+      <form id="gNew" class="g-form"><div class="f"><label for="gPass">New password</label><input id="gPass" type="password" autocomplete="new-password" minlength="8" required></div>
+      <div class="f"><label for="gPass2">Confirm password</label><input id="gPass2" type="password" autocomplete="new-password" minlength="8" required></div>
+      <p class="g-err" id="gErr" role="alert"></p><button class="btn pri" id="gBtn">Save password</button></form>`,
+    setup:`${brand}<h1>Connect your database</h1><p class="g-sub">This app isn’t connected to Supabase yet. In Vercel, open your project → <b>Settings → Environment Variables</b> and add <code>SUPABASE_URL</code> and <code>SUPABASE_PUBLISHABLE_KEY</code>. Then go to <b>Deployments</b>, open the latest one and click <b>Redeploy</b>.${CFG.WARNING?'</p><p class="g-err">'+esc(CFG.WARNING):''}</p><p class="g-sub">The setup guide that came with this app walks through every step.</p>`,
+    nolib:`${brand}<h1>Couldn’t load Supabase</h1><p class="g-sub">The Supabase library didn’t load. Check your internet connection and reload the page.</p>`,
+    noprofile:`${brand}<h1>Account not set up</h1><p class="g-sub">You signed in, but your account has no profile in the database. An admin needs to run <code>supabase-setup.sql</code> in the Supabase SQL Editor, then you can sign in again.</p><button class="btn" data-act="signOut">Sign out</button>`,
+    dberror:`${brand}<h1>Database not ready</h1><p class="g-sub">The app couldn’t read its tables. Run <code>supabase-setup.sql</code> in the Supabase SQL Editor, then reload.</p><p class="g-err">${esc(detail||'')}</p><button class="btn" data-act="signOut">Sign out</button>`,
+  };
+  g.innerHTML=`<div class="g-card">${V[mode]||V.login}</div>`;
+  const f=g.querySelector('input');if(f)f.focus();
+}
+const authMsg=e=>{const m=(e&&e.message)||'';
+  if(/invalid login credentials/i.test(m))return 'Email or password is incorrect.';
+  if(/email not confirmed/i.test(m))return 'This email isn’t confirmed yet. Ask your admin to confirm the user in Supabase.';
+  if(/rate limit|too many/i.test(m))return 'Too many attempts. Wait a minute and try again.';
+  if(/failed to fetch|network/i.test(m))return 'Couldn’t reach the server. Check your internet connection.';
+  return m||'Something went wrong. Try again.'};
+document.addEventListener('submit',async e=>{
+  const f=e.target;if(!['gLogin','gForgot','gNew'].includes(f.id))return;
+  e.preventDefault();const err=$('#gErr'),btn=$('#gBtn');err.textContent='';btn.disabled=true;
+  try{
+    if(f.id==='gLogin'){
+      const {error}=await SB.auth.signInWithPassword({email:$('#gEmail').value.trim(),password:$('#gPass').value});
+      if(error)throw error;
+    }else if(f.id==='gForgot'){
+      const {error}=await SB.auth.resetPasswordForEmail($('#gEmail').value.trim(),{redirectTo:location.origin+location.pathname});
+      if(error)throw error;gate('sent');
+    }else{
+      const p1=$('#gPass').value,p2=$('#gPass2').value;
+      if(p1.length<8)throw new Error('Use at least 8 characters.');
+      if(p1!==p2)throw new Error('The two passwords don’t match.');
+      const {error}=await SB.auth.updateUser({password:p1});if(error)throw error;
+      toast('Password saved');window.__doneRecovery();
+    }
+  }catch(x){if(err)err.textContent=authMsg(x)}finally{if(btn&&document.body.contains(btn))btn.disabled=false}
+});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-gate]');if(b){gate(b.dataset.gate)}});
+async function signOut(){if(UI.dirty&&!confirmLeave())return;await SB.auth.signOut();}
+function confirmLeave(){return true}
+
+/* ---------- Team (admin) ---------- */
+function vUsers(){
+  return `<div class="top"><div><h1>Team &amp; access</h1><p class="sub">Who can sign in, and what they can do.</p></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="tbl-wrap"><table class="t"><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Added</th><th></th></tr></thead><tbody>
+  ${TEAM.map(p=>`<tr><td><input id="un_${p.id}" class="search" style="width:220px" value="${esc(p.full_name||'')}" placeholder="Full name" aria-label="Name for ${esc(p.email)}"></td><td class="mono">${esc(p.email||'')}</td>
+    <td><select id="ur_${p.id}" class="search" style="width:auto" aria-label="Role for ${esc(p.email)}">${['admin','staff','viewer'].map(r=>`<option value="${r}" ${p.role===r?'selected':''}>${ROLE_LABEL[r]}</option>`).join('')}</select></td>
+    <td>${p.created_at?dmy(p.created_at.slice(0,10)):''}</td><td><button class="btn sm" data-act="saveUser" data-id="${p.id}">Save</button>${p.id===ME?' <span class="chip issued">You</span>':''}</td></tr>`).join('')}</tbody></table></div></div>
+  <div class="card pad grid g3">
+    <div><h2>Admin</h2><p class="sub">Everything, including company settings, logo, stamp, backups and this page.</p></div>
+    <div><h2>Staff</h2><p class="sub">Create and edit orders, products, parties and BOE entries. Download all documents.</p></div>
+    <div><h2>Viewer</h2><p class="sub">Read orders and download documents. Can’t change anything.</p></div>
+  </div>
+  <div class="card pad" style="margin-top:16px"><h2>Add a person</h2><p class="sub">In Supabase, open <b>Authentication → Users → Add user → Create new user</b>. Enter their email and a temporary password, tick <b>Auto Confirm User</b>, and click Create. They appear here as Staff, and you can change their role.</p></div>`;
+}
+async function saveUser(id){
+  const name=$('#un_'+id).value.trim(),role=$('#ur_'+id).value;
+  if(id===ME&&role!=='admin'&&TEAM.filter(p=>p.role==='admin').length<2){toast('You’re the only admin. Make someone else admin first.');return}
+  const {error}=await SB.from('profiles').update({full_name:name,role}).eq('id',id);
+  if(error){toast(dbMsg(error));return}
+  await loadProfiles();applyRole();toast('Saved');render();
+}
+
+/* ================= Domain ================= */
+const MOVES=['Free Zone Internal Transfer','Free Zone Bill of Entry','Import','Temporary Exit','Export'];
+const PAYS=['CDR Cash','CDR Bank','Deposit','Credit A/C','Stan.G','Bank G','FTT','Alcohol','Other'];
+const CURS=['AED','USD','EUR','GBP','CNY','SAR','INR'];
+const STATUS={draft:'Draft',issued:'Issued',hold:'On hold',released:'Released',cancelled:'Cancelled'};
+const party=id=>S.parties[id]||null;
+const lineAmt=l=>num(l.qty)*num(l.price);
+function totals(o){
+  const t={qty:0,net:0,gross:0,cbm:0,amt:0};
+  (o.lines||[]).forEach(l=>{const q=num(l.qty);t.qty+=q;t.net+=q*num(l.uNet);t.gross+=q*num(l.uGross);t.cbm+=q*num(l.uCbm);t.amt+=lineAmt(l)});
+  t.aed=t.amt*(o.currency==='AED'?1:num(o.fx||1));
+  return t;
+}
+function effStatus(o){return o.hold&&o.hold.on&&o.status!=='cancelled'&&o.status!=='released'?'hold':o.status}
+function seqOf(no){const m=String(no||'').match(/(\d+)\s*$/);return m?+m[1]:0}
+function nextNo(date){
+  const s=settings();const d=date||today();const yy=d.slice(2,4),mm=d.slice(5,7);
+  let max=num(s.startSeq)-1;Object.values(S.orders).forEach(o=>{max=Math.max(max,seqOf(o.no))});
+  return `${s.prefix}/ORD/${yy}/${mm}/${max+1}`;
+}
+function consolidated(o){
+  const m=new Map();
+  (o.lines||[]).forEach(l=>{
+    const k=(l.sku||'')+'|'+(l.coo||'');
+    if(!m.has(k))m.set(k,{...l,qty:0,net:0,gross:0,cbm:0});
+    const r=m.get(k),q=num(l.qty);r.qty+=q;r.net+=q*num(l.uNet);r.gross+=q*num(l.uGross);r.cbm+=q*num(l.uCbm);
+  });
+  return [...m.values()];
+}
+function boeOut(boe,sku,exceptId){
+  let n=0;Object.entries(S.orders).forEach(([id,o])=>{if(id===exceptId||o.status==='cancelled'||o.boe!==boe)return;(o.lines||[]).forEach(l=>{if(l.sku===sku)n+=num(l.qty)})});return n;
+}
+function boeIn(boe,sku){let n=0;Object.values(S.boes).forEach(b=>{if(b.boe===boe&&b.sku===sku)n+=num(b.qty)});return n}
+function checks(o,id){
+  const r=[];const add=(level,msg)=>r.push({level,msg});
+  if(!o.consigneeId)add('error','Choose a consignee (the party receiving ownership).');
+  if(!o.boe)add('error','Enter the Free Zone Bill of Entry number.');
+  else if(!/^\d{3}-\d{8}-\d{2}$/.test(o.boe))add('warn',`BOE "${o.boe}" doesn’t match the usual Dubai Customs format 000-00000000-00.`);
+  if(!(o.lines||[]).length)add('error','Add at least one item line.');
+  (o.lines||[]).forEach((l,i)=>{
+    const n=`Line ${i+1}${l.sku?' ('+l.sku+')':''}`;
+    if(!l.sku)add('error',`${n}: SKU is missing.`);
+    if(!/^\d{8}$/.test(String(l.hs||'').replace(/\D/g,''))||String(l.hs||'').replace(/\D/g,'').length!==8)add('warn',`${n}: HS code should be 8 digits (GCC tariff).`);
+    if(!l.coo)add('warn',`${n}: country of origin is blank.`);
+    if(num(l.qty)<=0)add('error',`${n}: quantity must be above zero.`);
+    if(num(l.price)<=0)add('warn',`${n}: unit price is zero.`);
+    if(num(l.uNet)>num(l.uGross))add('error',`${n}: net weight is higher than gross weight.`);
+    if(num(l.uNet)<=0)add('warn',`${n}: unit weight is zero, so totals will show 0 kg.`);
+  });
+  if(o.boe){
+    const regs=Object.values(S.boes).filter(b=>b.boe===o.boe);
+    if(!regs.length)add('warn',`BOE ${o.boe} isn’t in the BOE register, so stock balance can’t be checked.`);
+    else consolidated(o).forEach(l=>{
+      const inn=boeIn(o.boe,l.sku),out=boeOut(o.boe,l.sku,id),avail=inn-out;
+      if(!inn)add('error',`${l.sku} was not received under BOE ${o.boe}.`);
+      else if(l.qty>avail)add('error',`${l.sku}: ${fmtQ(l.qty)} requested but only ${fmtQ(avail)} left on BOE ${o.boe}.`);
+    });
+  }
+  if(o.currency!=='AED'&&num(o.fx)<=0)add('error','Enter the exchange rate to AED.');
+  if(o.hold&&o.hold.on)add('warn',`Order is on hold${o.hold.ref?' ('+o.hold.ref+')':''}. Delivery Advice and Transfer of Ownership print with a DO NOT RELEASE watermark until the hold is lifted.`);
+  if(!r.some(x=>x.level!=='ok'))add('ok','All checks passed. Documents are consistent across invoice, packing list, delivery advice and transfer.');
+  return r;
+}
+function wordsInt(n){
+  const a=['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','Ten','Eleven','Twelve','Thirteen','Fourteen','Fifteen','Sixteen','Seventeen','Eighteen','Nineteen'];
+  const b=['','','Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+  const w=n=>{if(n<20)return a[n];if(n<100)return b[Math.floor(n/10)]+(n%10?'-'+a[n%10]:'');if(n<1000)return a[Math.floor(n/100)]+' Hundred'+(n%100?' and '+w(n%100):'');
+    for(const [v,s] of [[1e9,'Billion'],[1e6,'Million'],[1e3,'Thousand']])if(n>=v)return w(Math.floor(n/v))+' '+s+(n%v?(n%v<100?' and ':' ')+w(n%v):'');};
+  return w(Math.floor(n));
+}
+function amountWords(x,cur){
+  const names={AED:['UAE Dirhams','Fils'],USD:['US Dollars','Cents'],EUR:['Euros','Cents'],GBP:['Pounds Sterling','Pence'],CNY:['Chinese Yuan','Fen'],SAR:['Saudi Riyals','Halalas'],INR:['Indian Rupees','Paise']}[cur]||[cur,'Cents'];
+  const i=Math.floor(Math.round(x*100)/100),f=Math.round((x-i)*100);
+  return `${names[0]} ${wordsInt(i)}${f?` and ${wordsInt(f)} ${names[1]}`:''} Only`;
+}
+
+/* ================= Navigation & rendering ================= */
+function go(view,extra={}){
+  if(UI.dirty&&UI.view==='order'&&!(extra.force)){confirmBox('Leave without saving?','Your changes to this order haven’t been saved.','Discard changes',()=>{UI.dirty=false;go(view,{...extra,force:true})});return}
+  Object.assign(UI,{view},extra);if(view!=='order'){UI.edit=null;UI.dirty=false}
+  render();window.scrollTo(0,0);
+}
+function renderNav(){
+  const c={orders:Object.keys(S.orders).length,products:Object.keys(S.products).length,parties:Object.keys(S.parties).length,boes:Object.keys(S.boes).length};
+  const items=[['dash','Dashboard',''],['orders','Orders',c.orders],['boes','BOE register',c.boes],['products','Products',c.products],['parties','Parties',c.parties],['settings','Company settings','']];
+  if(ROLE==='admin')items.push(['users','Team & access',TEAM.length]);
+  $('#nav').innerHTML=items.map(([k,l,n])=>`<button data-go="${k}" class="${UI.view===k||(k==='orders'&&UI.view==='order')?'on':''}"><span>${l}</span><span class="n">${n}</span></button>`).join('');
+  const s=settings();$('#sideName').textContent=titleCase(s.companyName);
+  const logo=S.config.logo&&S.config.logo.data;$('#sideMark').innerHTML=logo?`<img alt="" src="${esc(logo)}">`:esc(initials(s.companyName));
+  const ac=$('#acct');if(ac)ac.innerHTML=MYPROFILE?`<b>${esc(MYPROFILE.full_name||MYPROFILE.email||'')}</b><div class="row"><span class="rolechip">${ROLE_LABEL[ROLE]||''}</span><button data-act="signOut">Sign out</button></div>`:'';
+}
+const titleCase=s=>String(s||'').toLowerCase().replace(/\b\w/g,c=>c.toUpperCase());
+const initials=s=>String(s||'U').split(/\s+/).filter(w=>!/^(llc|fze|fzco|l\.l\.c|trading|company|co)$/i.test(w)).map(w=>w[0]).join('').slice(0,2).toUpperCase()||'U';
+let rT=0;
+function render(){cancelAnimationFrame(rT);rT=requestAnimationFrame(doRender)}
+function doRender(){
+  if(!READY)return;
+  renderNav();
+  const v=UI.view,m=$('#main');
+  if(v==='order'&&UI.dirty){refreshOrderSide();return}
+  const ae=document.activeElement,aid=ae&&ae.id,pos=ae&&ae.selectionStart;
+  m.innerHTML=({dash:vDash,orders:vOrders,order:vOrder,products:vProducts,parties:vParties,boes:vBoes,settings:vSettings,users:vUsers}[v]||vDash)();
+  if(v==='order'&&UI.tab==='docs')mountDoc();
+  if(aid){const el=document.getElementById(aid);if(el&&el!==document.activeElement){el.focus();try{if(pos!=null)el.setSelectionRange(pos,pos)}catch(e){}}}
+  names(Object.values(S.orders).flatMap(o=>[o.createdBy,...(o.log||[]).map(l=>l.by)]));
+}
+function kpi(l,b,s){return `<div class="card kpi"><label>${l}</label><b>${b}</b><small>${s||'&nbsp;'}</small></div>`}
+function statusChip(o){const s=effStatus(o);return `<span class="chip ${s}">${STATUS[s]}</span>${o.sample?' <span class="chip sample">Sample</span>':''}`}
+function vDash(){
+  const os=Object.entries(S.orders);const ym=today().slice(0,7);
+  const month=os.filter(([,o])=>(o.date||'').startsWith(ym)&&o.status!=='cancelled');
+  const val=month.reduce((a,[,o])=>a+totals(o).aed,0);
+  const holds=os.filter(([,o])=>effStatus(o)==='hold').length;
+  const pending=os.filter(([,o])=>effStatus(o)==='issued').length;
+  const issues=os.filter(([id,o])=>o.status!=='cancelled'&&o.status!=='released'&&checks(o,id).some(c=>c.level==='error')).length;
+  const recent=os.sort((a,b)=>(b[1].updatedAt||'').localeCompare(a[1].updatedAt||'')).slice(0,8);
+  return `<div class="top"><div><h1>Good to see you${MYPROFILE&&MYPROFILE.full_name?', '+esc(MYPROFILE.full_name.split(' ')[0]):''}</h1><p class="sub">${esc(settings().companyName)} · Jebel Ali Free Zone document desk</p></div>
+  <div class="row"><button class="btn pri" data-act="newOrder">New order</button></div></div>
+  <div class="kpis">${kpi('Value this month','AED '+fmt(val,0),month.length+' orders')}${kpi('Awaiting release',pending,'Issued, not yet released')}${kpi('On hold',holds,'Do-not-release flags')}${kpi('Need attention',issues,'Orders with blocking errors')}</div>
+  <div class="card"><div class="pad row" style="justify-content:space-between"><h2>Recent orders</h2><button class="btn sm" data-go="orders">All orders</button></div>
+  ${recent.length?ordersTable(recent):`<div class="empty"><b>No orders yet</b>Create your first order, or add products and parties first so lines fill in automatically.<div class="row" style="justify-content:center;margin-top:14px"><button class="btn pri" data-act="newOrder">New order</button>${ROLE==='admin'&&!Object.keys(S.products).length?'<button class="btn" data-act="loadSample">Load sample data</button>':''}</div></div>`}</div>`;
+}
+function ordersTable(rows){
+  return `<div class="tbl-wrap"><table class="t"><thead><tr><th>Order no.</th><th>Date</th><th>Consignee</th><th>BOE</th><th class="num">Qty</th><th class="num">Value (AED)</th><th>Status</th></tr></thead><tbody>
+  ${rows.map(([id,o])=>{const t=totals(o);return `<tr class="click" data-open="${id}" tabindex="0"><td class="mono">${esc(o.no)}</td><td>${dmy(o.date)}</td><td>${esc((party(o.consigneeId)||{}).name||'—')}</td><td class="mono">${esc(o.boe||'—')}</td><td class="num">${fmtQ(t.qty)}</td><td class="num">${fmt(t.aed)}</td><td>${statusChip(o)}</td></tr>`}).join('')}</tbody></table></div>`;
+}
+function vOrders(){
+  const q=UI.q.toLowerCase();
+  let rows=Object.entries(S.orders).filter(([,o])=>{
+    if(UI.status!=='all'&&effStatus(o)!==UI.status)return false;
+    if(!q)return true;
+    return [o.no,o.boe,o.poRef,(party(o.consigneeId)||{}).name,(party(o.customerId)||{}).name,...(o.lines||[]).map(l=>l.sku+' '+l.desc)].join(' ').toLowerCase().includes(q);
+  }).sort((a,b)=>seqOf(b[1].no)-seqOf(a[1].no));
+  return `<div class="top"><div><h1>Orders</h1><p class="sub">Every order produces all four documents from one set of figures.</p></div>
+  <div class="row"><button class="btn" data-act="exportCsv">Export CSV</button><button class="btn pri" data-act="newOrder">New order</button></div></div>
+  <div class="row" style="margin-bottom:12px"><input id="q" class="search" placeholder="Search order, BOE, SKU, party" value="${esc(UI.q)}" aria-label="Search orders">
+  <select id="fstatus" class="search" style="width:auto" aria-label="Filter by status"><option value="all">All statuses</option>${Object.entries(STATUS).map(([k,v])=>`<option value="${k}" ${UI.status===k?'selected':''}>${v}</option>`).join('')}</select></div>
+  <div class="card">${rows.length?ordersTable(rows):'<div class="empty"><b>No matching orders</b>Change the search or status filter.</div>'}</div>`;
+}
+
+/* ---------- Order editor ---------- */
+function blankOrder(){
+  const s=settings();
+  return {no:nextNo(today()),date:today(),status:'draft',hold:{on:false,ref:'',reason:''},customerId:'',consigneeId:'',billToId:'',poRef:'',boe:'',movement:'Free Zone Internal Transfer',exitPoint:s.exitPoint,destination:s.destination,currency:s.currency||'AED',fx:1,incoterm:'',payMethod:'',remarks:'',lines:[blankLine()],createdAt:nowIso(),updatedAt:nowIso(),createdBy:ME||'',log:[{at:nowIso(),by:ME||'',action:'Created'}]};
+}
+function blankLine(){return {sku:'',desc:'',hs:'',coo:'',uom:'PIECE',qty:1,price:0,uNet:0,uGross:0,uCbm:0}}
+function curOrder(){if(!UI.edit){const o=S.orders[UI.orderId];UI.edit=o?clone(o):blankOrder()}return UI.edit}
+function partyOpts(sel){
+  const ps=Object.entries(S.parties).sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  return `<option value="">— Select —</option>`+ps.map(([id,p])=>`<option value="${id}" ${sel===id?'selected':''}>${esc(p.name)}</option>`).join('');
+}
+function vOrder(){
+  const o=curOrder(),id=UI.orderId,isNew=!S.orders[id];
+  const ck=checks(o,id),err=ck.filter(c=>c.level==='error').length,warn=ck.filter(c=>c.level==='warn').length;
+  const locked=o.status==='released'||o.status==='cancelled';
+  const st=effStatus(o);
+  return `<div class="top"><div><p class="sub" style="margin:0 0 4px"><button class="btn sm" data-go="orders">← Orders</button></p>
+    <h1 class="mono" style="font-family:var(--mono);font-size:22px">${esc(o.no)}</h1>
+    <p class="sub">${statusChip(o)} &nbsp;${esc((party(o.consigneeId)||{}).name||'No consignee yet')} · <span id="sumLine">${sumLine(o)}</span></p></div>
+    <div class="row"><span id="dirtyTag" class="unsaved">${UI.dirty?'Unsaved changes':''}</span>
+    ${isNew?'':`<button class="btn" data-act="dupOrder">Duplicate</button>`}
+    ${!isNew&&o.status==='draft'?`<button class="btn" data-act="issue">Issue</button>`:''}
+    ${!isNew&&o.status==='issued'?`<button class="btn" data-act="release" ${st==='hold'||err?'disabled title="Resolve the hold and blocking errors first"':''}>Mark released</button>`:''}
+    ${!isNew&&locked?`<button class="btn" data-act="reopen">Reopen</button>`:''}
+    <button class="btn pri" data-act="saveOrder" ${locked?'disabled':''}>Save</button></div></div>
+  ${o.hold&&o.hold.on?`<div class="hold"><div><b>ON HOLD · DO NOT RELEASE</b><div>${esc(o.hold.ref||'')}${o.hold.reason?' — '+esc(o.hold.reason):''}</div></div><button class="btn sm" data-act="liftHold" style="margin-left:auto" ${locked?'disabled':''}>Lift hold</button></div>`:''}
+  <div class="tabs" role="tablist">${[['details','Details'],['lines','Items'],['docs','Documents'],['checks','Checks'],['history','History']].map(([k,l])=>`<button role="tab" data-tab="${k}" class="${UI.tab===k?'on':''}">${l}${k==='checks'&&(err||warn)?`<span class="cnt ${err?'b':''}" id="ckCnt">${err||warn}</span>`:''}</button>`).join('')}</div>
+  <fieldset ${locked&&UI.tab!=='docs'&&UI.tab!=='history'?'disabled':''} style="border:0;padding:0;margin:0;min-width:0">
+  ${UI.tab==='details'?tDetails(o):UI.tab==='lines'?tLines(o):UI.tab==='docs'?tDocs(o):UI.tab==='checks'?tChecks(ck):tHistory(o)}</fieldset>`;
+}
+function sumLine(o){const t=totals(o);return `${fmtQ(t.qty)} pcs · ${fmt(t.net,3)} kg · ${fmt(t.cbm,4)} CBM · ${o.currency} ${fmt(t.amt)}`}
+function fld(label,id,val,attrs='',hint=''){return `<div class="f"><label for="${id}">${label}</label><input id="${id}" data-o="${id.replace('o_','')}" value="${esc(val)}" ${attrs}>${hint?`<span class="hint">${hint}</span>`:''}</div>`}
+function sel(label,id,opts,val){return `<div class="f"><label for="${id}">${label}</label><select id="${id}" data-o="${id.replace('o_','')}">${opts.map(x=>`<option ${x===val?'selected':''}>${esc(x)}</option>`).join('')}</select></div>`}
+function tDetails(o){
+  return `<div class="grid" style="gap:16px">
+  <div class="card pad grid g4">
+    ${fld('Order / invoice no.','o_no',o.no,'class="mono"','Auto-numbered; edit if needed')}
+    ${fld('Date','o_date',o.date,'type="date"')}
+    ${fld('PO / reference','o_poRef',o.poRef)}
+    ${fld('Free Zone Bill of Entry','o_boe',o.boe,'class="mono" placeholder="502-00000000-26" list="boeList"')}
+    <datalist id="boeList">${[...new Set(Object.values(S.boes).map(b=>b.boe))].map(b=>`<option value="${esc(b)}">`).join('')}</datalist>
+  </div>
+  <div class="card pad grid g3">
+    <div class="f"><label for="o_customerId">Customer (sold to)</label><select id="o_customerId" data-o="customerId">${partyOpts(o.customerId)}</select></div>
+    <div class="f"><label for="o_consigneeId">Consignee / transferee</label><select id="o_consigneeId" data-o="consigneeId">${partyOpts(o.consigneeId)}</select></div>
+    <div class="f"><label for="o_billToId">Bill to</label><select id="o_billToId" data-o="billToId">${partyOpts(o.billToId)}</select><span class="hint"><button type="button" class="btn sm" data-act="quickParty">Add a party</button></span></div>
+  </div>
+  <div class="card pad grid g4">
+    ${sel('Movement type','o_movement',MOVES,o.movement)}
+    ${fld('Exit point','o_exitPoint',o.exitPoint)}
+    ${fld('Destination','o_destination',o.destination)}
+    ${sel('Payment method (DA)','o_payMethod',['',...PAYS],o.payMethod||'')}
+    ${sel('Invoice currency','o_currency',CURS,o.currency)}
+    ${fld('Rate to AED','o_fx',o.currency==='AED'?1:o.fx,`type="number" step="0.0001" ${o.currency==='AED'?'disabled':''}`,'1 unit of currency = ? AED')}
+    ${fld('Incoterm','o_incoterm',o.incoterm,'placeholder="e.g. EXW Jebel Ali"')}
+  </div>
+  <div class="card pad grid g2">
+    <div class="f"><label for="o_remarks">Remarks (printed on DA and invoice)</label><textarea id="o_remarks" data-o="remarks">${esc(o.remarks)}</textarea></div>
+    <div class="grid" style="gap:10px">
+      <div class="f"><label><input type="checkbox" id="o_holdon" data-hold="on" ${o.hold.on?'checked':''} style="width:auto;margin-right:8px">Put this order on hold (do not release)</label></div>
+      ${fld('Hold reference','o_holdref',o.hold.ref,'data-hold="ref"').replace('data-o="holdref"','')}
+      ${fld('Hold reason','o_holdreason',o.hold.reason,'data-hold="reason"').replace('data-o="holdreason"','')}
+    </div>
+  </div></div>`;
+}
+function tLines(o){
+  const t=totals(o);
+  return `<div class="card"><div class="tbl-wrap"><table class="t lines"><thead><tr><th>#</th><th style="min-width:150px">SKU</th><th style="min-width:200px">Description</th><th style="min-width:95px">HS code</th><th style="min-width:80px">Origin</th><th style="min-width:70px">UOM</th><th class="num" style="min-width:70px">Qty</th><th class="num" style="min-width:80px">Unit net kg</th><th class="num" style="min-width:80px">Unit gross kg</th><th class="num" style="min-width:80px">Unit CBM</th><th class="num" style="min-width:90px">Unit price</th><th class="num">Amount</th><th></th></tr></thead>
+  <tbody>${o.lines.map((l,i)=>`<tr>
+    <td class="mono" style="padding-left:10px">${i+1}</td>
+    <td><input id="l${i}_sku" data-l="${i}" data-k="sku" value="${esc(l.sku)}" list="skuList" class="mono" aria-label="SKU line ${i+1}"></td>
+    <td><input id="l${i}_desc" data-l="${i}" data-k="desc" value="${esc(l.desc)}" aria-label="Description"></td>
+    <td><input id="l${i}_hs" data-l="${i}" data-k="hs" value="${esc(l.hs)}" class="mono" aria-label="HS code"></td>
+    <td><input id="l${i}_coo" data-l="${i}" data-k="coo" value="${esc(l.coo)}" aria-label="Country of origin"></td>
+    <td><input id="l${i}_uom" data-l="${i}" data-k="uom" value="${esc(l.uom)}" aria-label="Unit"></td>
+    <td><input id="l${i}_qty" data-l="${i}" data-k="qty" value="${esc(l.qty)}" type="number" class="num" aria-label="Quantity"></td>
+    <td><input id="l${i}_uNet" data-l="${i}" data-k="uNet" value="${esc(l.uNet)}" type="number" step="0.001" class="num" aria-label="Unit net kg"></td>
+    <td><input id="l${i}_uGross" data-l="${i}" data-k="uGross" value="${esc(l.uGross)}" type="number" step="0.001" class="num" aria-label="Unit gross kg"></td>
+    <td><input id="l${i}_uCbm" data-l="${i}" data-k="uCbm" value="${esc(l.uCbm)}" type="number" step="0.0001" class="num" aria-label="Unit CBM"></td>
+    <td><input id="l${i}_price" data-l="${i}" data-k="price" value="${esc(l.price)}" type="number" step="0.01" class="num" aria-label="Unit price"></td>
+    <td class="num" id="amt${i}" style="padding:10px 8px">${fmt(lineAmt(l))}</td>
+    <td><button class="btn sm danger" data-act="rmLine" data-i="${i}" aria-label="Remove line ${i+1}">✕</button></td></tr>`).join('')}</tbody>
+  <tfoot><tr><td colspan="6" style="text-align:right">Totals</td><td class="num" id="tQty">${fmtQ(t.qty)}</td><td class="num" id="tNet">${fmt(t.net,3)}</td><td class="num" id="tGross">${fmt(t.gross,3)}</td><td class="num" id="tCbm">${fmt(t.cbm,4)}</td><td></td><td class="num" id="tAmt">${fmt(t.amt)}</td><td></td></tr></tfoot></table></div>
+  <datalist id="skuList">${Object.values(S.products).map(p=>`<option value="${esc(p.sku)}">${esc(p.desc)}</option>`).join('')}</datalist>
+  <div class="pad row"><button class="btn" data-act="addLine">Add line</button><span class="sub" style="margin:0">Pick a SKU from your product list and its description, HS code, origin, weights and price fill in.</span></div></div>`;
+}
+function tChecks(ck){return `<div class="card pad checks">${ck.map(c=>`<div class="chk ${c.level}"><i>${c.level==='error'?'!':c.level==='warn'?'△':'✓'}</i><span>${esc(c.msg)}</span></div>`).join('')}</div>`}
+function tHistory(o){return `<div class="card pad"><ul class="log">${(o.log||[]).slice().reverse().map(l=>`<li><time>${new Date(l.at).toLocaleString('en-GB')}</time><span>${esc(l.action)} · <span style="color:var(--muted)">${esc(who(l.by))}</span></span></li>`).join('')}</ul></div>`}
+const DOCS=[['ci','Commercial Invoice','For customs and the buyer'],['pl','Packing List','Consolidated by SKU'],['da','Delivery Advice','Release request to Ports & Customs'],['to','Transfer of Ownership','Free zone goods transfer'],['all','Full document pack','All four in one PDF']];
+function tDocs(o){
+  return `<div class="docs"><div class="doclist">${DOCS.map(([k,t,s])=>`<button data-doc="${k}" class="${UI.doc===k?'on':''}"><b>${t}</b><small>${s}</small></button>`).join('')}
+  <button class="btn pri" data-act="pdf" style="margin-top:8px">Download PDF</button>
+  <p class="sub" style="font-size:12px">${UI.dirty?'Showing unsaved changes. Save before sending documents out.':''}${o.status==='draft'?' Draft orders carry a DRAFT watermark until issued.':''}</p></div>
+  <div class="stage" id="stage"><div class="scaler" id="scaler"></div></div></div>`;
+}
+function mountDoc(){
+  const o=curOrder(),sc=$('#scaler');if(!sc)return;
+  const kinds=UI.doc==='all'?['ci','pl','da','to']:[UI.doc];
+  sc.innerHTML=kinds.map(k=>paper(k,o)).join('<div style="height:18px"></div>');
+  sc.querySelectorAll('[data-qr]').forEach(drawQr);
+  const st=$('#stage');const w=794;
+  const s=Math.min(1,(st.clientWidth-36)/w);sc.style.transform=`scale(${s})`;sc.style.width=w+'px';
+  requestAnimationFrame(()=>{sc.style.height='';const h=sc.scrollHeight;sc.parentElement.style.height='';sc.style.marginBottom=(h*s-h)+'px'});
+}
+function drawQr(el){if(!window.QRCode)return;el.innerHTML='';try{new QRCode(el,{text:el.dataset.qr,width:168,height:168,correctLevel:QRCode.CorrectLevel.M})}catch(e){}}
+
+/* ---------- Printed document templates (Figma freelancer invoice layout) ---------- */
+function wm(o,release){
+  if(o.status==='cancelled')return `<div class="wm"><span>CANCELLED</span></div>`;
+  if(release&&o.hold&&o.hold.on)return `<div class="wm"><span>ON HOLD · DO NOT RELEASE</span></div>`;
+  if(o.status==='draft')return `<div class="wm draft"><span>DRAFT</span></div>`;
+  return '';
+}
+function qrText(o,t){return `${settings().companyName}|${o.no}|BOE ${o.boe}|QTY ${t.qty}|AED ${t.aed.toFixed(2)}|${o.date}`}
+function cooList(o){return [...new Set((o.lines||[]).map(l=>(l.coo||'').toUpperCase()).filter(Boolean))].join(', ')||'AS PER INVOICE'}
+function descSummary(o){const c=consolidated(o);return c.length<=2?c.map(l=>l.desc).join('; '):'AS PER THE INVOICE'}
+const tHead=(title,ref)=>`<div class="t-head"><b>${esc(title)}</b> <span>| ${esc(ref)}</span></div>`;
+function tCard(title,rows){return `<div class="t-card"><h4>${esc(title)}</h4>${rows.filter(r=>r!==null&&r!==undefined&&r!=='').map(r=>`<p>${r}</p>`).join('')}</div>`}
+function partyRows(p){p=p||{};return [p.name?`<b style="font-weight:500">${esc(p.name)}</b>`:'<em>Not set</em>',esc(p.address||''),esc([p.city,p.country].filter(Boolean).join(', ')),p.phone?esc(p.phone):'',p.email?esc(p.email):'',p.trn?`<em>TRN:</em> ${esc(p.trn)}`:'',p.code?`<em>Code:</em> ${esc(p.code)}`:'']}
+const kv=(k,v)=>`<em>${esc(k)}</em> ${esc(v||'—')}`;
+function tHold(o){return o.hold&&o.hold.on?`<div class="t-sum hold"><span>On hold · Do not release${o.hold.ref?' · '+esc(o.hold.ref):''}</span><span>${esc(o.hold.reason||'')}</span></div>`:''}
+function tFoot(){
+  const s=settings(),logo=S.config.logo&&S.config.logo.data;
+  const bank=[s.bankName,s.accName,s.accNo&&'Acc No: '+s.accNo,s.iban&&'IBAN: '+s.iban,s.swift&&'SWIFT: '+s.swift].filter(Boolean);
+  const reg=[s.licenceNo&&'Trade licence: '+s.licenceNo,s.trn&&'TRN: '+s.trn,s.importerCode&&'Importer code: '+s.importerCode].filter(Boolean);
+  return `<div class="t-footwrap"><div class="t-foot">
+    <div class="t-logo ${logo?'img':''}">${logo?`<img alt="" src="${esc(logo)}">`:esc(initials(s.companyName))}</div>
+    <div class="t-fcol"><b>Contact details:</b>${[s.companyName,s.address1,s.address2,s.phone,s.email].filter(Boolean).map(esc).join('<br>')}</div>
+    <div class="t-fcol"><b>${bank.length?'Bank details:':'Registration details:'}</b>${(bank.length?bank:(reg.length?reg:['Add bank details in Company settings'])).map(esc).join('<br>')}${s.footer?'<br>'+esc(s.footer):''}</div>
+  </div></div>`;
+}
+function tSign(o,labels){
+  const stamp=S.config.stamp&&S.config.stamp.data,s=settings();
+  const okStamp=stamp&&o.status!=='draft'&&o.status!=='cancelled';
+  return `<div class="t-sign">${labels.map(([l,st,blockHold])=>`<div>${st&&okStamp&&!(blockHold&&o.hold&&o.hold.on)?`<img alt="" src="${esc(stamp)}">`:''}${esc(l)}${st&&s.signatory?`<div style="font-weight:400;margin-top:2px">${esc(s.signatory)}</div>`:''}</div>`).join('')}</div>`;
+}
+function paper(k,o){
+  const s=settings(),t=totals(o),brand=`--brand:${esc(s.brand||'#073b4c')}`;
+  const cons=party(o.consigneeId),cust=party(o.customerId),bill=party(o.billToId)||cust;
+  const cur=o.currency,uom=(o.lines[0]||{}).uom||'PCS';
+  const totalsLine=`${fmtQ(t.qty)} ${esc(uom)} · Net ${fmt(t.net,3)} kg · Gross ${fmt(t.gross,3)} kg · ${fmt(t.cbm,4)} CBM`;
+  const qr=`<div class="qr" data-qr="${esc(qrText(o,t))}"></div>`;
+  if(k==='ci')return `<div class="paper" style="${brand}">${wm(o)}${tHead('Commercial Invoice',o.no)}
+    <div class="t-band">${tCard('Consignee',partyRows(cons))}${tCard('Billed to',partyRows(bill))}${tCard('Invoice details',[kv('Invoice number:',o.no),kv('Issue date:',dmy(o.date)),kv('PO / reference:',o.poRef),kv('Free Zone BOE:',o.boe),o.incoterm?kv('Incoterm:',o.incoterm):''])}</div>
+    <div class="t-body"><div class="t-row"><div><div class="t-h2">Shipment details</div>
+      <p class="t-p">${esc(o.movement)} of ${fmtQ(t.qty)} ${esc(uom.toLowerCase())} from ${esc(s.companyName)}, Jebel Ali Free Zone, under Free Zone Bill of Entry ${esc(o.boe||'—')}. Exit point ${esc(o.exitPoint)}, destination ${esc(o.destination)}. Country of origin: ${esc(cooList(o))}.${o.remarks?' '+esc(o.remarks):''}</p></div>${qr}</div>
+      <table class="t-tbl"><thead><tr><th>#</th><th>Item</th><th>HS code</th><th>COO</th><th class="r">Qty</th><th class="r">Net kg</th><th class="r">Gross kg</th><th class="r">Unit price</th><th class="r">Amount</th></tr></thead>
+      <tbody><tr class="rule"><td colspan="9"><div></div></td></tr>${o.lines.map((l,i)=>`<tr><td>${i+1}</td><td><b>${esc(l.desc)}</b><br>${esc(l.sku)}</td><td>${esc(l.hs)}</td><td>${esc((l.coo||'').toUpperCase())}</td><td class="r">${fmtQ(l.qty)} ${esc(l.uom)}</td><td class="r">${fmt(num(l.qty)*num(l.uNet),3)}</td><td class="r">${fmt(num(l.qty)*num(l.uGross),3)}</td><td class="r">${esc(cur)} ${fmt(l.price)}</td><td class="r">${esc(cur)} ${fmt(lineAmt(l))}</td></tr>`).join('')}</tbody></table>
+      ${tHold(o)}
+      <div class="t-sum adv"><span>Totals</span><span>${totalsLine}</span></div>
+      <div class="t-sum total"><span>Total</span><span>${esc(cur)} ${fmt(t.amt)}</span></div>
+      ${cur!=='AED'?`<div class="t-sum adv"><span>AED equivalent @ ${esc(o.fx)}</span><span>AED ${fmt(t.aed)}</span></div>`:''}
+      <div class="t-sum adv"><span>Amount in words</span><span>${esc(amountWords(t.amt,cur))}</span></div>
+      <p class="t-small">We certify that this invoice shows the actual price of the goods described, that all particulars are true and correct, and that the goods are held in the Jebel Ali Free Zone under the Bill of Entry stated above.</p>
+      ${tSign(o,[['Authorised signature & company stamp',true],['Received by (consignee)',false]])}</div>${tFoot()}</div>`;
+  if(k==='pl'){const c=consolidated(o);return `<div class="paper" style="${brand}">${wm(o)}${tHead('Packing List',o.no)}
+    <div class="t-band" style="padding-bottom:36px">${tCard('Consignee',partyRows(cons))}${tCard('Billed to',partyRows(bill))}${tCard('Packing details',[kv('Order no.:',o.no),kv('Order date:',dmy(o.date)),kv('Customer:',(cust||{}).name),kv('PO / reference:',o.poRef),kv('Free Zone BOE:',o.boe)])}</div>
+    <div class="t-body"><div class="t-row"><div><div class="t-h2">Packing details</div><p class="t-p">Lines consolidated by SKU and country of origin. All goods drawn from Free Zone Bill of Entry ${esc(o.boe||'—')}.</p></div></div>
+      <table class="t-tbl"><thead><tr><th>#</th><th>Item</th><th class="r">Del. qty</th><th>UOM</th><th>COO</th><th>HS code</th><th class="r">Volume CBM</th><th class="r">Net kg</th><th class="r">Gross kg</th><th>In BOE no.</th></tr></thead>
+      <tbody><tr class="rule"><td colspan="10"><div></div></td></tr>${c.map((l,i)=>`<tr><td>${i+1}</td><td><b>${esc(l.desc)}</b><br>${esc(l.sku)}</td><td class="r">${fmtQ(l.qty)}</td><td>${esc(l.uom)}</td><td>${esc((l.coo||'').toUpperCase())}</td><td>${esc(l.hs)}</td><td class="r">${fmt(l.cbm,4)}</td><td class="r">${fmt(l.net,3)}</td><td class="r">${fmt(l.gross,3)}</td><td style="white-space:nowrap">${esc(o.boe)}</td></tr>`).join('')}</tbody></table>
+      ${tHold(o)}
+      <div class="t-sum total"><span>Grand total</span><span>${totalsLine}</span></div>
+      ${tSign(o,[['Packed & checked by',true],['Received by (consignee)',false],['',false]]).replace('<div></div></div>','<div class="blank"></div></div>')}</div>${tFoot()}</div>`}
+  if(k==='da'){const opt=(lab,on)=>`<div class="t-opt ${on?'on':''}"><span class="t-tick">${on?'✓':''}</span>${esc(lab)}</div>`;
+    return `<div class="paper" style="${brand}">${wm(o,true)}${tHead('Delivery Advice',o.no.replace('/ORD/','/DA/'))}
+    <div class="t-band">${tCard('Release to',partyRows(cons))}${tCard('Customs codes',[kv('Importer code:',s.importerCode),kv('Agent code:',s.agentCode),kv('Rep. card no.:',s.repCard)])}${tCard('Advice details',[kv('DA number:',o.no.replace('/ORD/','/DA/')),kv('Date:',dmy(o.date)),kv('Invoice no.:',o.no),kv('B/E ref. no.:',o.boe)])}</div>
+    <div class="t-body"><div class="t-h2">Release request</div>
+      <p class="t-p">The Director, Department of Ports &amp; Customs. Please authorise release of the goods below from our warehouse to <b style="font-weight:600;color:#4a4a4a">${esc((cons||{}).name||'—')}</b>.</p>
+      ${tHold(o)}
+      <table class="t-tbl"><thead><tr><th>Order key</th><th>Type</th><th class="r">Quantity</th><th class="r">Weight kg</th><th class="r">Volume CBM</th><th>Description of goods</th></tr></thead>
+      <tbody><tr class="rule"><td colspan="6"><div></div></td></tr><tr><td>${esc(o.no)}</td><td>${esc(uom)}</td><td class="r">${fmtQ(t.qty)}</td><td class="r">${fmt(t.gross,3)}</td><td class="r">${fmt(t.cbm,4)}</td><td>As attached invoice ${esc(o.no)}<br><b>${esc(descSummary(o))}</b>${o.remarks?'<br>Remarks: '+esc(o.remarks):''}</td></tr></tbody></table>
+      <div class="t-h3">Movement type</div><div class="t-opts" style="grid-template-columns:repeat(3,minmax(0,1fr))">${['Import','Free Zone Internal Transfer','Temporary Exit','Free Zone Bill of Entry','Export'].map(m=>opt(m,o.movement===m)).join('')}</div>
+      <div class="t-h3">Payment method</div><div class="t-opts" style="grid-template-columns:repeat(5,minmax(0,1fr))">${PAYS.map(p=>opt(p,o.payMethod===p)).join('')}</div>
+      <div class="t-sum adv" style="margin-top:12px"><span>Exit point · Destination</span><span>${esc(o.exitPoint)} → ${esc(o.destination)}</span></div>
+      <div class="t-sum adv"><span>Country of origin</span><span>${esc(cooList(o))}</span></div>
+      <div class="t-sum total"><span>Value (AED)</span><span>AED ${fmt(t.aed)}</span></div>
+      <p class="t-small">I/We declare the details given herein to be true and complete. * Importer's stamp applicable only in case of imports.</p>
+      ${tSign(o,[['Licensee / agent stamp & signature',true,true],["Importer's stamp & signature *",false],['For customs use',false]])}</div>${tFoot()}</div>`}
+  if(k==='to')return `<div class="paper" style="${brand}">${wm(o,true)}${tHead('Transfer of Ownership',o.no)}
+    <div class="t-band" style="padding-bottom:32px">${tCard('Transferor',partyRows({name:s.companyName,address:s.address1,city:s.address2,trn:s.trn}))}${tCard('Transferee',partyRows(cons))}${tCard('Transfer details',[kv('Date:',dmy(o.date)),kv('Free Zone BOE:',o.boe),kv('Invoice no.:',o.no),kv('Movement:',o.movement)])}</div>
+    <div class="t-body"><div class="t-row"><div><div class="t-h2">Transfer of ownership for free zone goods</div>
+      <p class="t-p">Please note that I/We, ${esc(s.companyName)}, have this day transferred the ownership of the undermentioned goods to <b style="font-weight:600;color:#4a4a4a">${esc((cons||{}).name||'—')}</b>. Country of origin and description of goods as per attached invoice ${esc(o.no)}.</p></div>${qr}</div>
+      ${tHold(o)}
+      <table class="t-tbl"><thead><tr><th>Particulars</th><th class="r">Details</th></tr></thead><tbody><tr class="rule"><td colspan="2"><div></div></td></tr>
+      ${[['Free Zone Bill of Entry no.',o.boe],['Total packages',fmtQ(t.qty)+' pkg'],['Description of the goods',descSummary(o)],['Country of origin',cooList(o)],['Total weight',fmt(t.gross,3)+' kg'],['Total volume',fmt(t.cbm,4)+' CBM']].map(([a,b])=>`<tr><td style="padding:6px 9px">${esc(a)}</td><td class="r" style="white-space:normal;padding:6px 9px">${esc(b||'—')}</td></tr>`).join('')}</tbody></table>
+      <div class="t-sum total"><span>Amount</span><span>AED ${fmt(t.aed)}</span></div>
+      <div class="t-sum adv"><span>Amount in words</span><span>${esc(amountWords(t.aed,'AED'))}</span></div>
+      ${tSign(o,[['Transferor stamp & authorised signature',true,true]]).replace('class="t-sign"','class="t-sign" style="margin-top:0;padding-top:24px"')}
+      <div class="t-h3" style="margin-top:12px">Transferee certification</div>
+      <p class="t-p">We M/S ${esc((cons||{}).name||'—')} certify that as from this date we are the owner of the above-mentioned goods, and we undertake to pay, when called upon to do so, all port storage and other charges due and accruing thereon.</p>
+      <div class="t-sign" style="padding-top:24px;margin-top:0"><div>Transferee stamp &amp; authorised signature</div></div></div>${tFoot()}</div>`;
+  return '';
+}
+
+/* ---------- PDF ---------- */
+async function downloadPdf(){
+  const o=curOrder();
+  if(!window.html2canvas||!window.jspdf){toast('The PDF engine didn’t load. Check your connection and reload the page.');return}
+  const kinds=UI.doc==='all'?['ci','pl','da','to']:[UI.doc];
+  toast('Building PDF…',60000);
+  try{
+    const {jsPDF}=window.jspdf;let pdf=null;const off=$('#off');
+    for(const k of kinds){
+      off.innerHTML=paper(k,o);off.querySelectorAll('[data-qr]').forEach(drawQr);
+      await new Promise(r=>setTimeout(r,60));
+      const node=off.firstElementChild;const canvas=await html2canvas(node,{scale:2,backgroundColor:'#ffffff',useCORS:true,logging:false});
+      const orient='p';
+      if(!pdf)pdf=new jsPDF({orientation:orient,unit:'pt',format:'a4'});else pdf.addPage('a4',orient);
+      const pw=pdf.internal.pageSize.getWidth(),ph=pdf.internal.pageSize.getHeight();
+      const img=canvas.toDataURL('image/jpeg',0.92),h=canvas.height*pw/canvas.width;
+      if(h<=ph+2)pdf.addImage(img,'JPEG',0,0,pw,Math.min(h,ph));
+      else{for(let y=0;y<h;y+=ph){if(y>0)pdf.addPage('a4',orient);pdf.addImage(img,'JPEG',0,-y,pw,h)}}
+    }
+    off.innerHTML='';
+    const label={ci:'CommercialInvoice',pl:'PackingList',da:'DeliveryAdvice',to:'TransferOfOwnership',all:'DocumentPack'}[UI.doc];
+    await saveFile(`${label}_${o.no.replace(/[^\w-]+/g,'-')}.pdf`,pdf.output('blob'));
+  }catch(e){toast('Couldn’t build the PDF. Try again, or try one document at a time.')}
+}
+async function saveFile(name,data){
+  const blob=data instanceof Blob?data:new Blob([data]);const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),4000);toast('Saved '+name);
+}
+
+/* ---------- Masters ---------- */
+function vProducts(){
+  const ps=Object.entries(S.products).sort((a,b)=>a[1].sku.localeCompare(b[1].sku));
+  return `<div class="top"><div><h1>Products</h1><p class="sub">SKUs with HS code, origin, unit weights and default price. Order lines fill in from here.</p></div><div class="row"><button class="btn pri" data-act="editProduct">Add product</button></div></div>
+  <div class="card">${ps.length?`<div class="tbl-wrap"><table class="t"><thead><tr><th>SKU</th><th>Description</th><th>HS code</th><th>Origin</th><th class="num">Net kg</th><th class="num">Gross kg</th><th class="num">CBM</th><th class="num">Price</th></tr></thead><tbody>
+  ${ps.map(([id,p])=>`<tr class="click" data-edit-product="${id}" tabindex="0"><td class="mono">${esc(p.sku)}</td><td>${esc(p.desc)}</td><td class="mono">${esc(p.hs)}</td><td>${esc(p.coo)}</td><td class="num">${fmt(p.uNet,3)}</td><td class="num">${fmt(p.uGross,3)}</td><td class="num">${fmt(p.uCbm,4)}</td><td class="num">${esc(p.currency||'AED')} ${fmt(p.price)}</td></tr>`).join('')}</tbody></table></div>`:'<div class="empty"><b>No products yet</b>Add your SKUs once and every order fills in descriptions, HS codes and weights for you.</div>'}</div>`;
+}
+function vParties(){
+  const ps=Object.entries(S.parties).sort((a,b)=>a[1].name.localeCompare(b[1].name));
+  return `<div class="top"><div><h1>Parties</h1><p class="sub">Customers, consignees and bill-to companies.</p></div><div class="row"><button class="btn pri" data-act="editParty">Add party</button></div></div>
+  <div class="card">${ps.length?`<div class="tbl-wrap"><table class="t"><thead><tr><th>Name</th><th>Role</th><th>Location</th><th>TRN</th><th>Code</th><th class="num">Orders</th></tr></thead><tbody>
+  ${ps.map(([id,p])=>{const n=Object.values(S.orders).filter(o=>[o.customerId,o.consigneeId,o.billToId].includes(id)).length;return `<tr class="click" data-edit-party="${id}" tabindex="0"><td><b>${esc(p.name)}</b></td><td>${esc(p.role||'')}</td><td>${esc([p.city,p.country].filter(Boolean).join(', '))}</td><td class="mono">${esc(p.trn||'')}</td><td class="mono">${esc(p.code||'')}</td><td class="num">${n}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty"><b>No parties yet</b>Add the companies you sell to and transfer goods to.</div>'}</div>`;
+}
+function vBoes(){
+  const groups={};Object.values(S.boes).forEach(b=>{const k=b.boe+'|'+b.sku;(groups[k]=groups[k]||{boe:b.boe,sku:b.sku,inn:0,date:b.date}).inn+=num(b.qty)});
+  const rows=Object.values(groups).map(g=>({...g,out:boeOut(g.boe,g.sku)})).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const entries=Object.entries(S.boes).sort((a,b)=>(b[1].date||'').localeCompare(a[1].date||''));
+  return `<div class="top"><div><h1>BOE register</h1><p class="sub">Stock received under each Free Zone Bill of Entry, and what orders have drawn against it. Dubai Customs expects free zone companies to trace every delivery back to its inbound BOE.</p></div><div class="row"><button class="btn pri" data-act="editBoe">Record inbound BOE</button></div></div>
+  <div class="card" style="margin-bottom:16px"><div class="pad"><h2>Balance by BOE and SKU</h2></div>${rows.length?`<div class="tbl-wrap"><table class="t"><thead><tr><th>BOE no.</th><th>SKU</th><th class="num">Received</th><th class="num">Drawn by orders</th><th class="num">Balance</th><th></th></tr></thead><tbody>
+  ${rows.map(r=>{const bal=r.inn-r.out;return `<tr><td class="mono">${esc(r.boe)}</td><td class="mono">${esc(r.sku)}</td><td class="num">${fmtQ(r.inn)}</td><td class="num">${fmtQ(r.out)}</td><td class="num"><b>${fmtQ(bal)}</b></td><td>${bal<0?'<span class="chip cancelled">Over-drawn</span>':bal===0?'<span class="chip">Closed</span>':'<span class="chip released">Open</span>'}</td></tr>`}).join('')}</tbody></table></div>`:'<div class="empty"><b>No inbound BOEs recorded</b>Record each Bill of Entry when goods arrive. Orders then check stock against it automatically.</div>'}</div>
+  ${entries.length?`<div class="card"><div class="pad"><h2>Inbound entries</h2></div><div class="tbl-wrap"><table class="t"><thead><tr><th>Date</th><th>BOE no.</th><th>SKU</th><th class="num">Qty</th><th>Supplier / ref</th></tr></thead><tbody>${entries.map(([id,b])=>`<tr class="click" data-edit-boe="${id}" tabindex="0"><td>${dmy(b.date)}</td><td class="mono">${esc(b.boe)}</td><td class="mono">${esc(b.sku)}</td><td class="num">${fmtQ(b.qty)}</td><td>${esc(b.ref||'')}</td></tr>`).join('')}</tbody></table></div></div>`:''}`;
+}
+function vSettings(){
+  const s=settings(),logo=S.config.logo&&S.config.logo.data,stamp=S.config.stamp&&S.config.stamp.data;
+  const F=(l,k,h='',a='')=>`<div class="f"><label for="s_${k}">${l}</label><input id="s_${k}" data-s="${k}" value="${esc(s[k])}" ${a}>${h?`<span class="hint">${h}</span>`:''}</div>`;
+  return `<div class="top"><div><h1>Company settings</h1><p class="sub">Printed on every document header, footer and declaration.</p></div><div class="row"><button class="btn pri admin-only" data-act="saveSettings">Save settings</button></div></div>${ROLE!=='admin'?'<p class="sub" style="margin:-8px 0 14px">Only an admin can change these settings.</p>':''}
+  <div class="grid" style="gap:16px">
+  <div class="card pad grid g3">${F('Legal company name','companyName')}${F('Address line 1','address1','e.g. Plot / warehouse no., JAFZA South')}${F('Address line 2','address2')}${F('Telephone','phone')}${F('Email','email')}${F('Website','website')}${F('VAT TRN','trn','15-digit Tax Registration Number')}${F('Trade licence no.','licenceNo')}${F('Authorised signatory','signatory')}</div>
+  <div class="card pad grid g4">${F('Customs importer code','importerCode','Printed on Delivery Advice')}${F('Agent code','agentCode')}${F('Rep. card no.','repCard')}${F('Default currency','currency')}${F('Order number prefix','prefix','Orders read PREFIX/ORD/YY/MM/seq')}${F('Next sequence starts at','startSeq','','type="number"')}${F('Default exit point','exitPoint')}${F('Default destination','destination')}</div>
+  <div class="card pad grid g3">${F('Bank name','bankName','Printed in the document footer')}${F('Account name','accName')}${F('Account number','accNo')}${F('IBAN','iban','','class="mono"')}${F('SWIFT / BIC','swift')}</div>
+  <div class="card pad grid g3">
+    <div class="f"><label for="s_brand">Document accent colour</label><input id="s_brand" data-s="brand" type="color" value="${esc(s.brand)}" style="height:40px;padding:4px"></div>
+    ${F('Footer note','footer','Optional, e.g. bank details line')}
+    <div></div>
+    <div class="f"><label for="logoIn">Company logo</label><input id="logoIn" class="admin-only" type="file" accept="image/*" data-img="logo"><span class="hint">${logo?'Logo uploaded. ':''}PNG or JPG, resized automatically.</span>${logo?`<img alt="Current logo" src="${esc(logo)}" style="max-height:60px;max-width:180px;background:#fff;padding:4px;border-radius:4px"><button class="btn sm" data-act="rmImg" data-k="logo">Remove logo</button>`:''}</div>
+    <div class="f"><label for="stampIn">Stamp &amp; signature image</label><input id="stampIn" class="admin-only" type="file" accept="image/*" data-img="stamp"><span class="hint">Applied to issued documents only, never drafts or held releases.</span>${stamp?`<img alt="Current stamp" src="${esc(stamp)}" style="max-height:70px;max-width:180px;background:#fff;padding:4px;border-radius:4px"><button class="btn sm" data-act="rmImg" data-k="stamp">Remove stamp</button>`:''}</div>
+    <div class="f"><label>Backup</label><div class="row"><button class="btn" data-act="backup">Download backup</button><label class="btn admin-only" for="restoreIn">Restore backup</label><input id="restoreIn" type="file" accept=".json" hidden></div><span class="hint">Data lives in your Supabase database and syncs live for every signed-in user. Supabase’s free plan has no automatic backups, so download one regularly.</span></div>
+  </div></div>`;
+}
+
+/* ---------- Modals ---------- */
+function modal(html){$('#modalRoot').innerHTML=`<div class="modal-bg" data-close="1"><div class="modal" role="dialog" aria-modal="true">${html}</div></div>`;const f=$('#modalRoot input,#modalRoot select');if(f)f.focus()}
+function closeModal(){$('#modalRoot').innerHTML=''}
+function confirmBox(title,body,okLabel,fn){modal(`<h2>${esc(title)}</h2><p style="margin:0">${esc(body)}</p><div class="row" style="justify-content:flex-end"><button class="btn" data-close="1">Keep editing</button><button class="btn pri" id="cfOk">${esc(okLabel)}</button></div>`);$('#cfOk').onclick=()=>{closeModal();fn()}}
+function formModal(title,fields,data,onSave,onDelete){
+  modal(`<h2>${esc(title)}</h2><form id="mf" class="grid g2">${fields.map(([k,l,a])=>`<div class="f"><label for="m_${k}">${l}</label>${a==='select:role'?`<select id="m_${k}" name="${k}">${['Customer','Consignee','Bill to','Customer & consignee'].map(r=>`<option ${data[k]===r?'selected':''}>${r}</option>`).join('')}</select>`:`<input id="m_${k}" name="${k}" value="${esc(data[k]??'')}" ${a||''}>`}</div>`).join('')}
+  <div class="row" style="grid-column:1/-1;justify-content:space-between">${onDelete?'<button type="button" class="btn danger" id="mDel">Delete</button>':'<span></span>'}<div class="row"><button type="button" class="btn" data-close="1">Cancel</button><button class="btn pri">Save</button></div></div></form>`);
+  $('#mf').onsubmit=e=>{e.preventDefault();const d={...data};new FormData(e.target).forEach((v,k)=>d[k]=String(v).trim());onSave(d)};
+  if(onDelete)$('#mDel').onclick=onDelete;
+}
+const PRODUCT_F=[['sku','SKU','required'],['desc','Description','required'],['hs','HS code (8 digits)','inputmode="numeric"'],['coo','Country of origin'],['uom','Unit of measure'],['price','Default unit price','type="number" step="0.01"'],['currency','Price currency'],['uNet','Unit net weight (kg)','type="number" step="0.001"'],['uGross','Unit gross weight (kg)','type="number" step="0.001"'],['uCbm','Unit volume (CBM)','type="number" step="0.0001"']];
+const PARTY_F=[['name','Company name','required'],['role','Role','select:role'],['address','Address'],['city','City'],['country','Country'],['phone','Phone'],['email','Email'],['trn','TRN'],['code','Customs / client code']];
+const BOE_F=[['boe','Bill of Entry no.','required placeholder="502-00000000-26"'],['date','Date received','type="date" required'],['sku','SKU','required list="skuList2"'],['qty','Quantity received','type="number" required'],['ref','Supplier / reference']];
+function editProduct(id){const p=id?S.products[id]:{uom:'PIECE',currency:'AED',coo:''};formModal(id?'Edit product':'Add product',PRODUCT_F,clone(p),async d=>{['price','uNet','uGross','uCbm'].forEach(k=>d[k]=num(d[k]));await put('products',id||uid(),d);closeModal();toast('Product saved')},id&&(()=>confirmBox('Delete this product?','Existing orders keep their copied line details.','Delete product',async()=>{await del('products',id);closeModal();toast('Product deleted')})))}
+function editParty(id,after){const p=id?S.parties[id]:{role:'Consignee',country:'United Arab Emirates',city:'Dubai'};formModal(id?'Edit party':'Add party',PARTY_F,clone(p),async d=>{const nid=id||uid();await put('parties',nid,d);closeModal();toast('Party saved');after&&after(nid)},id&&(()=>confirmBox('Delete this party?','Orders that reference it will show a blank party.','Delete party',async()=>{await del('parties',id);closeModal();toast('Party deleted')})))}
+function editBoe(id){const b=id?S.boes[id]:{date:today()};formModal(id?'Edit inbound BOE':'Record inbound BOE',BOE_F,clone(b),async d=>{d.qty=num(d.qty);await put('boes',id||uid(),d);closeModal();toast('BOE entry saved')},id&&(()=>confirmBox('Delete this entry?','Balances recalculate immediately.','Delete entry',async()=>{await del('boes',id);closeModal()})));
+  $('#mf').insertAdjacentHTML('beforeend',`<datalist id="skuList2">${Object.values(S.products).map(p=>`<option value="${esc(p.sku)}">`).join('')}</datalist>`)}
+
+/* ---------- Order actions ---------- */
+function markDirty(){UI.dirty=true;const d=$('#dirtyTag');if(d)d.textContent='Unsaved changes'}
+function refreshOrderSide(){
+  const o=curOrder();const t=totals(o);
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.textContent=v};
+  set('sumLine',sumLine(o));set('tQty',fmtQ(t.qty));set('tNet',fmt(t.net,3));set('tGross',fmt(t.gross,3));set('tCbm',fmt(t.cbm,4));set('tAmt',fmt(t.amt));
+  o.lines.forEach((l,i)=>set('amt'+i,fmt(lineAmt(l))));
+  if(UI.tab==='docs')mountDoc();
+}
+function logAct(o,action){o.log=o.log||[];o.log.push({at:nowIso(),by:ME||'',action})}
+async function saveOrder(msg){
+  const o=curOrder();let id=UI.orderId;
+  if(!id||!S.orders[id]){
+    if(!id)id=UI.orderId=uid();
+    if(Object.values(S.orders).some(x=>x.no===o.no)){o.no=nextNo(o.date)}
+  }
+  o.updatedAt=nowIso();
+  o.lines=o.lines.filter(l=>l.sku||l.desc||num(l.qty)>1||num(l.price));
+  if(!o.lines.length)o.lines=[blankLine()];
+  if(msg)logAct(o,msg);else if(S.orders[id])logAct(o,'Edited');
+  try{await put('orders',id,clone(o));UI.dirty=false;UI.edit=null;toast('Order '+o.no+' saved');render()}catch(e){}
+}
+function applyProduct(l,p){Object.assign(l,{desc:p.desc,hs:p.hs,coo:p.coo,uom:p.uom||'PIECE',price:num(p.price),uNet:num(p.uNet),uGross:num(p.uGross),uCbm:num(p.uCbm)})}
+async function setStatus(st,label){const o=curOrder();o.status=st;if(st==='released')o.releasedAt=nowIso();await saveOrder(label)}
+function exportCsv(){
+  const head=['Order no','Date','Status','Customer','Consignee','BOE','Movement','Currency','Qty','Net kg','Gross kg','CBM','Amount','Value AED','Hold ref'];
+  const rows=Object.values(S.orders).sort((a,b)=>seqOf(a.no)-seqOf(b.no)).map(o=>{const t=totals(o);return [o.no,o.date,STATUS[effStatus(o)],(party(o.customerId)||{}).name,(party(o.consigneeId)||{}).name,o.boe,o.movement,o.currency,t.qty,t.net.toFixed(3),t.gross.toFixed(3),t.cbm.toFixed(4),t.amt.toFixed(2),t.aed.toFixed(2),o.hold&&o.hold.on?o.hold.ref:'']});
+  const csv=[head,...rows].map(r=>r.map(v=>`"${String(v??'').replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  saveFile(`Univex_Orders_${today()}.csv`,'﻿'+csv);
+}
+async function resizeImg(file,max){
+  const url=await new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(r.result);r.onerror=rej;r.readAsDataURL(file)});
+  const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url});
+  const sc=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);return c.toDataURL('image/png');
+}
+async function loadSample(){
+  const P='p-moveocean',Q='p-hezaartoo',R='p-blink';
+  const pw={sku:'JF-190120240331-CFI-ZCT2WX (WHITE)',desc:'Sony PlayStation 5 DualSense Controller White UAE Version',hs:'95049000',coo:'CHINA',uom:'PIECE',price:192,currency:'AED',uNet:.34,uGross:.34,uCbm:.0025};
+  const pb={sku:'JF-190120240332-CFI-ZCT2W0 1X (BLACK)',desc:'Sony PlayStation 5 DualSense Controller Black',hs:'95049000',coo:'CHINA',uom:'PIECE',price:192,currency:'AED',uNet:.34,uGross:.34,uCbm:.0025};
+  try{
+    await put('parties',P,{name:'MOVE OCEAN LOGISTICS',role:'Consignee',address:'Jebel Ali Free Zone',city:'Dubai',country:'United Arab Emirates'});
+    await put('parties',Q,{name:'HEZAARTOO ELECTRONICS TRADING LLC',role:'Bill to',city:'Dubai',country:'United Arab Emirates'});
+    await put('parties',R,{name:'BLINK TECHNOLOGIES FZCO',role:'Customer',city:'Dubai',country:'United Arab Emirates'});
+    await put('products','sku-ps5-white',pw);await put('products','sku-ps5-black',pb);
+    await put('boes','boe-sample-white',{boe:'502-00462988-26',date:'2026-09-28',sku:pw.sku,qty:500,ref:'Sample inbound'});
+    await put('boes','boe-sample-black',{boe:'502-00462988-26',date:'2026-09-28',sku:pb.sku,qty:500,ref:'Sample inbound'});
+    const L=x=>{const c={...x};delete c.currency;return c};
+    const o=blankOrder();Object.assign(o,{sample:true,date:'2026-10-01',status:'issued',customerId:R,consigneeId:P,billToId:Q,boe:'502-00462988-26',poRef:'T261001819932S1',hold:{on:true,ref:'T261001819932S1',reason:'Hezaartoo Electronics Trading LLC — do not release'},lines:[{...L(pw),qty:500},{...L(pb),qty:480},{...L(pb),qty:20}]});
+    await put('orders','sample-order-1',o);toast('Sample data loaded');
+  }catch(e){}
+}
+
+/* ================= Events ================= */
+document.addEventListener('click',async e=>{
+  if(e.target.closest('#gate')&&!e.target.closest('[data-act]'))return;
+  const t=e.target.closest('button,[data-open],[data-edit-product],[data-edit-party],[data-edit-boe],[data-close]');if(!t)return;
+  if(t.dataset.close&&e.target===t){closeModal();return}
+  if(t.dataset.go){go(t.dataset.go);return}
+  if(t.dataset.open){go('order',{orderId:t.dataset.open,tab:'details',edit:null});return}
+  if(t.dataset.editProduct){editProduct(t.dataset.editProduct);return}
+  if(t.dataset.editParty){editParty(t.dataset.editParty);return}
+  if(t.dataset.editBoe){editBoe(t.dataset.editBoe);return}
+  if(t.dataset.tab){UI.tab=t.dataset.tab;const d=UI.dirty;UI.dirty=false;doRender();UI.dirty=d;if(d)markDirty();return}
+  if(t.dataset.doc){UI.doc=t.dataset.doc;document.querySelectorAll('[data-doc]').forEach(b=>b.classList.toggle('on',b===t));mountDoc();return}
+  const a=t.dataset.act;if(!a)return;
+  const o=UI.view==='order'?curOrder():null;
+  ({
+    newOrder:()=>go('order',{orderId:null,tab:'details',edit:null}),
+    loadSample,
+    signOut,
+    saveUser:()=>saveUser(t.dataset.id),
+    saveOrder:()=>saveOrder(),
+    addLine:()=>{o.lines.push(blankLine());markDirty();const d=UI.dirty;UI.dirty=false;doRender();UI.dirty=d;markDirty();const el=document.getElementById(`l${o.lines.length-1}_sku`);el&&el.focus()},
+    rmLine:()=>{o.lines.splice(+t.dataset.i,1);if(!o.lines.length)o.lines.push(blankLine());UI.dirty=false;doRender();markDirty()},
+    issue:()=>setStatus('issued','Issued'),
+    release:()=>confirmBox('Mark as released?','This records that goods left the warehouse and locks the order.','Mark released',()=>setStatus('released','Released to '+((party(o.consigneeId)||{}).name||'consignee'))),
+    reopen:()=>confirmBox('Reopen this order?','It returns to Issued so it can be edited. The history keeps a record.','Reopen',()=>setStatus('issued','Reopened')),
+    liftHold:()=>confirmBox('Lift the hold?','Release documents will print without the DO NOT RELEASE watermark.','Lift hold',()=>{const r=o.hold.ref;o.hold={on:false,ref:'',reason:''};saveOrder('Hold lifted'+(r?' ('+r+')':''))}),
+    dupOrder:()=>{const c=clone(o);Object.assign(c,{no:nextNo(today()),date:today(),status:'draft',sample:false,hold:{on:false,ref:'',reason:''},createdAt:nowIso(),createdBy:ME||'',log:[{at:nowIso(),by:ME||'',action:'Duplicated from '+o.no}]});UI.orderId=null;UI.edit=c;UI.tab='details';UI.dirty=true;doRender();markDirty();toast('Copy created. Save to keep it.')},
+    pdf:downloadPdf,
+    quickParty:()=>editParty(null,nid=>{if(!o.consigneeId)o.consigneeId=nid;markDirty();const d=UI.dirty;UI.dirty=false;setTimeout(()=>{doRender();UI.dirty=d;markDirty()},50)}),
+    exportCsv,
+    editProduct:()=>editProduct(),editParty:()=>editParty(),editBoe:()=>editBoe(),
+    saveSettings:async()=>{const s=settings();document.querySelectorAll('[data-s]').forEach(i=>s[i.dataset.s]=i.dataset.s==='startSeq'?num(i.value):i.value.trim());await put('config','settings',s);toast('Settings saved')},
+    rmImg:async()=>{await del('config',t.dataset.k);toast('Image removed')},
+    backup:()=>saveFile(`Univex_TradeDocs_Backup_${today()}.json`,JSON.stringify({version:1,exported:nowIso(),...S},null,1)),
+  }[a]||(()=>{}))();
+});
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&$('#modalRoot').innerHTML)closeModal();
+  if(e.key==='Enter'&&e.target.matches('tr[tabindex]'))e.target.click();
+  if((e.ctrlKey||e.metaKey)&&e.key==='s'&&UI.view==='order'){e.preventDefault();saveOrder()}
+});
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.id==='q'){UI.q=el.value;doRender();return}
+  if(UI.view!=='order')return;
+  const o=curOrder();
+  if(el.dataset.o){o[el.dataset.o]=el.value;markDirty();refreshOrderSide();return}
+  if(el.dataset.hold&&el.type!=='checkbox'){o.hold[el.dataset.hold]=el.value;markDirty();return}
+  if(el.dataset.l!=null){const l=o.lines[+el.dataset.l];l[el.dataset.k]=el.value;markDirty();refreshOrderSide()}
+});
+document.addEventListener('change',async e=>{
+  const el=e.target;
+  if(el.id==='fstatus'){UI.status=el.value;doRender();return}
+  if(el.dataset.img){const f=el.files[0];if(!f)return;try{const data=await resizeImg(f,el.dataset.img==='logo'?360:420);if(data.length>240000){toast('That image is too large even after resizing. Try a simpler PNG.');return}await put('config',el.dataset.img,{data});toast(el.dataset.img==='logo'?'Logo saved':'Stamp saved')}catch(err){toast('Couldn’t read that image. Use a PNG or JPG.')}return}
+  if(el.id==='restoreIn'){const f=el.files[0];if(!f)return;try{const d=JSON.parse(await f.text());for(const c of ['orders','products','parties','boes','config'])for(const [id,v] of Object.entries(d[c]||{}))await put(c,id,v);toast('Backup restored')}catch(err){toast('That file isn’t a valid backup.')}return}
+  if(UI.view!=='order')return;
+  const o=curOrder();
+  if(el.dataset.hold==='on'){o.hold.on=el.checked;markDirty();return}
+  if(el.dataset.o==='currency'){o.currency=el.value;if(el.value==='AED')o.fx=1;markDirty();const d=UI.dirty;UI.dirty=false;doRender();UI.dirty=d;markDirty();return}
+  if(el.dataset.o==='date'&&!S.orders[UI.orderId]){o.no=nextNo(el.value);const n=$('#o_no');if(n)n.value=o.no}
+  if(el.dataset.k==='sku'){const p=Object.values(S.products).find(p=>p.sku===el.value.trim());if(p){applyProduct(o.lines[+el.dataset.l],p);UI.dirty=false;doRender();markDirty();const q=document.getElementById(`l${el.dataset.l}_qty`);q&&q.focus()}}
+});
+window.addEventListener('resize',()=>{if(UI.view==='order'&&UI.tab==='docs')mountDoc()});
+let tT;function toast(m,ms=3200){let el=$('.toast');if(!el){el=document.createElement('div');el.className='toast';el.setAttribute('role','status');document.body.appendChild(el)}el.textContent=m;clearTimeout(tT);tT=setTimeout(()=>el.remove(),ms)}
+boot();
+</script>
+</body>
+</html>
